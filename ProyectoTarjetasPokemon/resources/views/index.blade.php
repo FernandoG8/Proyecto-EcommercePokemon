@@ -9,7 +9,7 @@
 <body>
 
     <div class="header">
-        <img class="logoPokemon" src="{{ asset('recursos/imagenes/pokemonlogo.png') }}" alt="Pokémon Logo">
+        <img class="logoPokemon" src="{{ asset('resources/imagenes/pokemonlogo.png') }}" alt="Pokémon Logo"> 
     </div>
 
     <div class="search-bar">

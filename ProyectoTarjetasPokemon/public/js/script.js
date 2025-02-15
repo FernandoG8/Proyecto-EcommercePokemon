@@ -1,6 +1,6 @@
 const pokemonContainer = document.querySelector(".pokemon-container");
 let offset = 1; // Desde qué Pokémon empezar
-const limit = 20; // Cantidad de Pokémon por carga
+const limit = 1000; // Cantidad de Pokémon por carga
 let isLoading = false; // Evita múltiples ejecuciones de loadPokemons()
 
 // Diccionario de precios según el tipo de Pokémon
