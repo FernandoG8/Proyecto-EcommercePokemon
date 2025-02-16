@@ -1,3 +1,4 @@
+/* Estilos generales */
 body {
     background-color: #f7c945;
     font-family: Arial, sans-serif;
@@ -25,8 +26,8 @@ body {
     margin-bottom: 20px;
 }
 
-.search-bar input, 
-.search-bar button, 
+.search-bar input,
+.search-bar button,
 .search-bar select {
     padding: 8px;
     border-radius: 5px;
@@ -41,33 +42,70 @@ body {
     margin: auto;
 }
 
+/* Estilos para las cartas de Pokémon */
 .pokemon-card {
-    background-color: #ff66a3;
-    border-radius: 10px;
-    padding: 10px;
-    color: white;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border-radius: 15px;
+    padding: 15px;
+    color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid #e0e0e0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.pokemon-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 .pokemon-card img {
     width: 100px;
+    transition: transform 0.3s ease;
+}
+
+.pokemon-card:hover img {
+    transform: scale(1.1);
+}
+
+.pokemon-card h3 {
+    font-size: 1.2em;
+    margin: 10px 0;
+    color: #2c3e50;
+}
+
+.pokemon-card p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #555;
 }
 
 .pokemon-card button {
-    background-color: white;
+    background-color: #3b4cca;
+    color: white;
     border: none;
-    padding: 5px;
+    padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 0.9em;
+    margin: 5px;
+    transition: background-color 0.3s ease;
 }
 
+.pokemon-card button:hover {
+    background-color: #ff0000;
+}
+
+/* Estilos para el botón de inicio de sesión */
 .login-button {
     position: absolute;
     top: 20px;
     right: 20px;
-    background-color: #3b4cca; /* Pokemon blue */
+    background-color: #3b4cca;
     color: white;
-    border: 2px solid #ff0000; /* Pokemon red */
+    border: 2px solid #ff0000;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
@@ -81,16 +119,18 @@ body {
 
 .login-button:hover {
     background-position: 100%;
-    color: #3b4cca; /* Pokemon blue */
+    color: #3b4cca;
     transform: scale(1.1);
 }
 
-.modal {
-    display: none; /* Oculto por defecto */
+/* Estilos para los modales */
+.modal,
+.cart-modal {
+    display: none;
     position: fixed;
     z-index: 1000;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
@@ -116,7 +156,7 @@ body {
     margin: 20px 0;
 }
 
-.modal h2, 
+.modal h2,
 .modal p {
     color: #333;
 }
@@ -142,4 +182,344 @@ body {
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+/* Estilos para el botón del carrito */
+.cart-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.cart-button img {
+    width: 40px;
+    height: auto;
+}
+
+#cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+}
+
+/* Estilos para el modal del carrito */
+.cart-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 400px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(-100%);
+    display: block;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cart-modal.show {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.cart-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cart-modal .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f7c945;
+    border-radius: 5px;
+}
+
+.cart-modal button {
+    align-self: flex-start;
+    padding: 10px 20px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Estilos para los botones de aumentar/disminuir */
+.increase-btn,
+.decrease-btn {
+    border: none;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 5px 2px;
+    font-size: 12px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.increase-btn {
+    background-color: #3b4cca; /* Azul Pokémon */
+    color: white;
+}
+
+.decrease-btn {
+    background-color: #ff0000; /* Rojo Pokémon */
+    color: white;
+}
+
+.decrease-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.quantity-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.quantity-control > div {
+    display: flex;
+    gap: 5px;
+}
+
+/* Colores de fondo según el tipo de Pokémon */
+.pokemon-card[data-type="fire"] {
+    background: linear-gradient(145deg, #ff7f50, #ff4500); /* Fuego: Naranja/Rojo */
+    color: white;
+}
+
+.pokemon-card[data-type="water"] {
+    background: linear-gradient(145deg, #1e90ff, #00bfff); /* Agua: Azul */
+    color: white;
+}
+
+.pokemon-card[data-type="grass"] {
+    background: linear-gradient(145deg, #32cd32, #228b22); /* Planta: Verde */
+    color: white;
+}
+
+.pokemon-card[data-type="electric"] {
+    background: linear-gradient(145deg, #ffd700, #ff8c00); /* Eléctrico: Amarillo */
+    color: white;
+}
+
+.pokemon-card[data-type="psychic"] {
+    background: linear-gradient(145deg, #ff69b4, #8a2be2); /* Psíquico: Rosa */
+    color: white;
+}
+
+.pokemon-card[data-type="flying"] {
+    background: linear-gradient(145deg, #87ceeb, #b0c4de); /* Volador: Azul cielo */
+    color: white;
+}
+
+.pokemon-card[data-type="dragon"] {
+    background: linear-gradient(145deg, #6a5acd, #483d8b); /* Dragón: Morado */
+    color: white;
+}
+
+.pokemon-card[data-type="steel"] {
+    background: linear-gradient(145deg, #b0c4de, #708090); /* Acero: Gris */
+    color: white;
+}
+
+.pokemon-card[data-type="normal"] {
+    background: linear-gradient(145deg, #a9a9a9, #808080); /* Normal: Gris */
+    color: white;
+}
+
+.pokemon-card[data-type="poison"] {
+    background: linear-gradient(145deg, #9370db, #8a2be2); /* Veneno: Morado */
+    color: white;
+}
+
+.pokemon-card[data-type="ground"] {
+    background: linear-gradient(145deg, #d2b48c, #8b4513); /* Tierra: Marrón */
+    color: white;
+}
+
+.pokemon-card[data-type="rock"] {
+    background: linear-gradient(145deg, #b8860b, #8b7355); /* Roca: Dorado */
+    color: white;
+}
+
+.pokemon-card[data-type="bug"] {
+    background: linear-gradient(145deg, #9acd32, #6b8e23); /* Bicho: Verde lima */
+    color: white;
+}
+
+.pokemon-card[data-type="fairy"] {
+    background: linear-gradient(145deg, #ffb6c1, #ff69b4); /* Hada: Rosa */
+    color: white;
+}
+
+.pokemon-card[data-type="fighting"] {
+    background: linear-gradient(145deg, #cd5c5c, #8b0000); /* Lucha: Rojo */
+    color: white;
+}
+
+.pokemon-card[data-type="dark"] {
+    background: linear-gradient(145deg, #2f4f4f, #000000); /* Siniestro: Gris oscuro */
+    color: white;
+}
+
+.pokemon-card[data-type="ice"] {
+    background: linear-gradient(145deg, #add8e6, #87cefa); /* Hielo: Azul claro */
+    color: white;
+}
+
+.pokemon-card[data-type="ghost"] {
+    background: linear-gradient(145deg, #9370db, #4b0082); /* Fantasma: Morado */
+    color: white;
+}
+
+/* Contenedor de partículas */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Evita que las partículas interfieran con los clics */
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+/* Partículas dinámicas */
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    opacity: 0;
+    animation: float 2s infinite ease-in-out;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(calc(100% - 20px), calc(100% - 20px));
+        opacity: 0;
+    }
+}
+
+/* Colores de partículas según el tipo */
+.pokemon-card[data-type="fire"] .particle {
+    background: rgba(255, 69, 0, 0.8); /* Fuego: Naranja/Rojo */
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+}
+
+.pokemon-card[data-type="water"] .particle {
+    background: rgba(30, 144, 255, 0.8); /* Agua: Azul */
+    box-shadow: 0 0 10px rgba(30, 144, 255, 0.8);
+}
+
+.pokemon-card[data-type="grass"] .particle {
+    background: rgba(50, 205, 50, 0.8); /* Planta: Verde */
+    box-shadow: 0 0 10px rgba(50, 205, 50, 0.8);
+}
+
+.pokemon-card[data-type="electric"] .particle {
+    background: rgba(255, 215, 0, 0.8); /* Eléctrico: Amarillo */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.pokemon-card[data-type="psychic"] .particle {
+    background: rgba(255, 105, 180, 0.8); /* Psíquico: Rosa */
+    box-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
+}
+
+.pokemon-card[data-type="flying"] .particle {
+    background: rgba(135, 206, 235, 0.8); /* Volador: Azul cielo */
+    box-shadow: 0 0 10px rgba(135, 206, 235, 0.8);
+}
+
+.pokemon-card[data-type="dragon"] .particle {
+    background: rgba(106, 90, 205, 0.8); /* Dragón: Morado */
+    box-shadow: 0 0 10px rgba(106, 90, 205, 0.8);
+}
+
+.pokemon-card[data-type="steel"] .particle {
+    background: rgba(176, 196, 222, 0.8); /* Acero: Gris */
+    box-shadow: 0 0 10px rgba(176, 196, 222, 0.8);
+}
+
+.pokemon-card[data-type="normal"] .particle {
+    background: rgba(169, 169, 169, 0.8); /* Normal: Gris */
+    box-shadow: 0 0 10px rgba(169, 169, 169, 0.8);
+}
+
+.pokemon-card[data-type="poison"] .particle {
+    background: rgba(147, 112, 219, 0.8); /* Veneno: Morado */
+    box-shadow: 0 0 10px rgba(147, 112, 219, 0.8);
+}
+
+.pokemon-card[data-type="ground"] .particle {
+    background: rgba(210, 180, 140, 0.8); /* Tierra: Marrón */
+    box-shadow: 0 0 10px rgba(210, 180, 140, 0.8);
+}
+
+.pokemon-card[data-type="rock"] .particle {
+    background: rgba(184, 134, 11, 0.8); /* Roca: Dorado */
+    box-shadow: 0 0 10px rgba(184, 134, 11, 0.8);
+}
+
+.pokemon-card[data-type="bug"] .particle {
+    background: rgba(154, 205, 50, 0.8); /* Bicho: Verde lima */
+    box-shadow: 0 0 10px rgba(154, 205, 50, 0.8);
+}
+
+.pokemon-card[data-type="fairy"] .particle {
+    background: rgba(255, 182, 193, 0.8); /* Hada: Rosa */
+    box-shadow: 0 0 10px rgba(255, 182, 193, 0.8);
+}
+
+.pokemon-card[data-type="fighting"] .particle {
+    background: rgba(205, 92, 92, 0.8); /* Lucha: Rojo */
+    box-shadow: 0 0 10px rgba(205, 92, 92, 0.8);
+}
+
+.pokemon-card[data-type="dark"] .particle {
+    background: rgba(47, 79, 79, 0.8); /* Siniestro: Gris oscuro */
+    box-shadow: 0 0 10px rgba(47, 79, 79, 0.8);
+}
+
+.pokemon-card[data-type="ice"] .particle {
+    background: rgba(173, 216, 230, 0.8); /* Hielo: Azul claro */
+    box-shadow: 0 0 10px rgba(173, 216, 230, 0.8);
+}
+
+.pokemon-card[data-type="ghost"] .particle {
+    background: rgba(147, 112, 219, 0.8); /* Fantasma: Morado */
+    box-shadow: 0 0 10px rgba(147, 112, 219, 0.8);
 }
