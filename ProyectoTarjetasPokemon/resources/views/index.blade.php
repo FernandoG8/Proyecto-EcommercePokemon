@@ -9,33 +9,44 @@
 <body>
 
     <div class="header">
-        <img class="logoPokemon" src="{{ asset('recursos/imagenes/pokemonlogo.png') }}" alt="Pokémon Logo">
+        <img class="logoPokemon" src="{{ asset('resources/imagenes/pokemonlogo.png') }}" alt="Pokémon Logo"> 
     </div>
 
+    <!-- Agregar el ícono del carrito en la cabecera -->
+<div class="header">
+    <button class="cart-button" onclick="toggleCart()">
+        <img src="{{ asset('resources/imagenes/carrito.png') }}" alt="Carrito"> <!-- Cambia este src por el de la imagen que deseas usar -->
+        <span id="cart-count">0</span> <!-- Número de productos en el carrito -->
+    </button>
+</div>
+
+
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Busca tu Pokémon">
+    <input type="text" id="searchInput" placeholder="Buscar Pokémon por nombre...">
+
+
         <button class="login-button" onclick="IniciarSesion()">Iniciar Sesión</button>
        
         <select id="typeFilter">
-            <option value="">Tipo de Pokémon</option>
-            <option>Agua</option>
-            <option>Fuego</option>
-            <option>Planta</option>
-            <option>Eléctrico</option>
-            <option>Psíquico</option>
-            <option>Volador</option>
-            <option>Dragón</option>
-            <option>Acero</option>
-            <option>Normal</option>
-            <option>Veneno</option>
-            <option>Tierra</option>
-            <option>Roca</option>
-            <option>Bicho</option>
-            <option>Hada</option>
-            <option>Lucha</option>
-            <option>Siniestro</option>
-            <option>Hielo</option>
-            <option>Fantasma</option>
+            <option value="">Todos</option>
+            <option value="fire">Fuego</option>
+            <option value="water">Agua</option>
+            <option value="grass">Planta</option>
+            <option value="electric">Eléctrico</option>
+            <option value="psychic">Psíquico</option>
+            <option value="flying">Volador</option>
+            <option value="dragon">Dragón</option>
+            <option value="steel">Acero</option>
+            <option value="normal">Normal</option>
+            <option value="poison">Veneno</option>
+            <option value="ground">Tierra</option>
+            <option value="rock">Roca</option>
+            <option value="bug">Bicho</option>
+            <option value="fairy">Hada</option>
+            <option value="fighting">Lucha</option>
+            <option value="dark">Siniestro</option>
+            <option value="ice">Hielo</option>
+            <option value="ghost">Fantasma</option>
         </select>
     </div>
 
@@ -50,6 +61,18 @@
             <span class="close" onclick="cerrarModal()">&times;</span>
         </div>
     </div>
+
+    <!-- Modal del carrito -->
+    <div class="cart-modal" id="cart-modal">
+    <div class="cart-modal-content">
+        <h2>Tu Carrito</h2>
+        <div id="cart-list">
+            <!-- Los productos del carrito se agregarán aquí dinámicamente -->
+        </div>
+        <button onclick="toggleCart()">Cerrar</button>
+    </div>
+</div>
+
     
     <script src="{{ asset('js/script.js') }}"></script>
 </body>
