@@ -56,9 +56,10 @@ function createPokemonCard(pokemon, pokemonType) {
     card.classList.add("pokemon-card");
     card.setAttribute("data-type", pokemon.types[0].type.name); // Asignar el tipo de Pokémon
 
-    // Contenedor de partículas
-    const particles = document.createElement("div");
-    particles.classList.add("particles");
+
+     // Contenedor de partículas
+     const particles = document.createElement("div");
+     particles.classList.add("particles");
 
     // Obtener todos los tipos del Pokémon
     const types = pokemon.types.map(type => type.type.name.toUpperCase()).join(" / ");
@@ -100,19 +101,28 @@ function createPokemonCard(pokemon, pokemonType) {
 
 
 function addToCart(id, name, sprite, price) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];  // Recuperamos el carrito de localStorage
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
     const product = { id, name, sprite, price };
 
     // Verificamos si el Pokémon ya está en el carrito
     const existingProductIndex = cart.findIndex(item => item.id === id);
     if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += 1;  // Aumentamos la cantidad si ya está en el carrito
+        cart[existingProductIndex].quantity += 1; // Aumentamos la cantidad si ya está en el carrito
     } else {
-        cart.push({ ...product, quantity: 1 });  // Si no está en el carrito, lo agregamos con cantidad 1
+        cart.push({ ...product, quantity: 1 }); // Si no está en el carrito, lo agregamos con cantidad 1
     }
 
-    localStorage.setItem("cart", JSON.stringify(cart));  // Guardamos el carrito actualizado en localStorage
-    updateCartCount();  // Actualizamos el contador del carrito
+    localStorage.setItem("cart", JSON.stringify(cart)); // Guardamos el carrito actualizado en localStorage
+    updateCartCount(); // Actualizamos el contador del carrito
+
+    // Actualizar el contenido del carrito
+    loadCartItems();
+
+    // Mostrar el modal si está oculto
+    const cartModal = document.getElementById("cart-modal");
+    if (!cartModal.classList.contains("show")) {
+        toggleCart(); // Abrir el modal
+    }
 }
 
 function toggleCart() {
@@ -123,28 +133,65 @@ function toggleCart() {
     loadCartItems();
 }
 
+
 function loadCartItems() {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const cartList = document.getElementById("cart-list");
     cartList.innerHTML = ""; // Limpiar la lista de productos del carrito
 
+    let totalPrice = 0; // Inicializar el precio total
+
     cart.forEach((item, index) => {
         const cartItem = document.createElement("div");
         cartItem.classList.add("cart-item");
+
+        // Contenido del ítem del carrito
         cartItem.innerHTML = `
             <img src="${item.sprite}" alt="${item.name}">
-            <span>${item.name}</span>
-            <span>Precio: $${item.price}</span>
-            <div class="quantity-control">
-                <span>Cantidad: ${item.quantity}</span>
-                <div>
-                    <button class="increase-btn" onclick="increaseQuantity(${index})">➕</button>
-                    <button class="decrease-btn" onclick="decreaseQuantity(${index})" ${item.quantity === 1 ? 'disabled' : ''}>➖</button>
+            <div class="item-details">
+                <span>${item.name}</span>
+                <span>Precio unitario: $${item.price}</span>
+                <div class="quantity-control">
+                    <span>Cantidad: ${item.quantity}</span>
+                    <div>
+                        <button class="increase-btn" onclick="increaseQuantity(${index})">➕</button>
+                        <button class="decrease-btn" onclick="decreaseQuantity(${index})" ${item.quantity === 1 ? 'disabled' : ''}>➖</button>
+                    </div>
                 </div>
             </div>
+            <span class="subtotal">Subtotal: $${item.price * item.quantity}</span>
+            <button class="remove-item-btn" onclick="removeFromCart(${index})">X</button>
         `;
+
         cartList.appendChild(cartItem);
+
+        // Sumar al precio total
+        totalPrice += item.price * item.quantity;
     });
+
+    // Mostrar el precio total en el carrito
+    const totalPriceElement = document.createElement("div");
+    totalPriceElement.classList.add("total-price");
+    totalPriceElement.innerHTML = `
+        <hr>
+        <h3>Total: $${totalPrice}</h3>
+        <button class="pay-button" onclick="redirectToPayment()">Pagar</button>
+    `;
+    cartList.appendChild(totalPriceElement);
+}
+
+function redirectToPayment() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0); // Calcular el total
+    window.location.href = `/datosPago?total=${totalPrice}`; // Pasar el total como parámetro en la URL
+}
+
+function removeFromCart(index) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.splice(index, 1); // Eliminar el Pokémon del carrito
+    localStorage.setItem("cart", JSON.stringify(cart)); // Actualizar el carrito
+    loadCartItems(); // Recargar los items del carrito
+    updateCartCount(); // Actualizar el contador del carrito
 }
 
 function increaseQuantity(index) {
@@ -239,26 +286,41 @@ async function showStats(pokemonId) {
 
         // Construir lista de estadísticas
         const statsHTML = pokemon.stats.map(stat => 
-            `<li>${stat.stat.name.toUpperCase()}: ${stat.base_stat}</li>`
-        ).join(" ");
+            `<li><strong>${stat.stat.name.toUpperCase()}:</strong> ${stat.base_stat}</li>`
+        ).join("");
 
         // Llenar el modal con datos
         document.getElementById("modal-title").textContent = `#${pokemon.id} ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}`;
         document.getElementById("modal-price").textContent = `Precio: $${price}`;
         document.getElementById("modal-stats").innerHTML = statsHTML;
-        document.querySelector("#modal #modal-image").src = pokemon.sprites.front_default; // Aseguramos que la imagen del Pokémon se muestre
+        document.getElementById("modal-image").src = pokemon.sprites.front_default;
 
-        // Mostrar el modal
-        document.getElementById("modal").style.display = "block";
+       // Cambiar el fondo del modal según el tipo
+       const modal = document.getElementById('statsModal');
+       modal.classList.remove(...modal.classList); // Limpiar clases anteriores
+       modal.classList.add('modal', 'fade', pokemonType); // Agregar clase del tipo
+
+        // Generar partículas
+        const particlesContainer = document.querySelector('.particles-container');
+        particlesContainer.innerHTML = ''; // Limpiar partículas anteriores
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.animationDuration = `${Math.random() * 2 + 1}s`;
+            particle.style.animationDelay = `${Math.random() * 1}s`;
+            particlesContainer.appendChild(particle);
+        }
+
+        // Mostrar el modal usando Bootstrap
+        const statsModal = new bootstrap.Modal(modal);
+        statsModal.show();
     } catch (error) {
         console.error("Error al obtener estadísticas:", error);
     }
 }
 
-// Cerrar el modal
-function cerrarModal() {
-    document.getElementById("modal").style.display = "none";
-}
 
 // Iniciar sesión
 function IniciarSesion() {
@@ -267,7 +329,8 @@ function IniciarSesion() {
 
 // Cargar Pokémon iniciales (sin filtrar)
 document.addEventListener('DOMContentLoaded', () => {
-    loadPokemons("");  // Cargar Pokémon sin filtro al inicio
+    updateCartCount(); // Actualizar el contador del carrito al cargar la página
+    loadPokemons(""); // Cargar Pokémon sin filtro al inicio
 });
 document.addEventListener("DOMContentLoaded", function () {
     const cartButton = document.querySelector(".cart-button");
@@ -296,13 +359,13 @@ document.addEventListener("DOMContentLoaded", function () {
 document.querySelectorAll('.pokemon-card').forEach(card => {
     card.addEventListener('mouseenter', () => {
         const particles = card.querySelector('.particles');
-        for (let i = 0; i < 30; i++) { // Genera 30 partículas
+        for (let i = 0; i < 60; i++) { // Genera 30 partículas
             const particle = document.createElement('div');
             particle.classList.add('particle');
             particle.style.left = `${Math.random() * 100}%`;
             particle.style.top = `${Math.random() * 100}%`;
-            particle.style.animationDuration = `${Math.random() * 2 + 1}s`; // Duración aleatoria
-            particle.style.animationDelay = `${Math.random() * 1}s`; // Retardo aleatorio
+            particle.style.animationDuration = `${Math.random() * 2 + 2}s`; // Duración aleatoria
+            particle.style.animationDelay = `${Math.random() * 2}s`; // Retardo aleatorio
             particles.appendChild(particle);
         }
     });

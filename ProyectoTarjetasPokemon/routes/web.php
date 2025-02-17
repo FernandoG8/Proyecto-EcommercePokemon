@@ -16,3 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('index');
 });
+
+Route::get('/datosPago', function () {
+    $total = request('total', 0); // Obtener el total de la URL (valor predeterminado: 0)
+    return view('datosPago', ['total' => $total]); // Pasar el total a la vista
+});

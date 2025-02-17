@@ -1,0 +1,200 @@
+/* Colores de fondo para las cartas Pokémon según su tipo */
+.pokemon-card[data-type="fire"] {
+    background: linear-gradient(145deg, rgba(255, 69, 0, 0.9), rgba(255, 140, 0, 0.9)); /* Fuego: Naranja/Rojo */
+}
+
+.pokemon-card[data-type="water"] {
+    background: linear-gradient(145deg, rgba(30, 144, 255, 0.9), rgba(0, 191, 255, 0.9)); /* Agua: Azul */
+}
+
+.pokemon-card[data-type="grass"] {
+    background: linear-gradient(145deg, rgba(50, 205, 50, 0.9), rgba(34, 139, 34, 0.9)); /* Planta: Verde */
+}
+
+.pokemon-card[data-type="electric"] {
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.9), rgba(255, 140, 0, 0.9)); /* Eléctrico: Amarillo/Naranja */
+}
+
+.pokemon-card[data-type="psychic"] {
+    background: linear-gradient(145deg, rgba(255, 105, 180, 0.9), rgba(138, 43, 226, 0.9)); /* Psíquico: Rosa/Morado */
+}
+
+.pokemon-card[data-type="flying"] {
+    background: linear-gradient(145deg, rgba(135, 206, 235, 0.9), rgba(176, 224, 230, 0.9)); /* Volador: Azul claro */
+}
+
+.pokemon-card[data-type="dragon"] {
+    background: linear-gradient(145deg, rgba(106, 90, 205, 0.9), rgba(72, 61, 139, 0.9)); /* Dragón: Morado oscuro */
+}
+
+.pokemon-card[data-type="steel"] {
+    background: linear-gradient(145deg, rgba(192, 192, 192, 0.9), rgba(112, 128, 144, 0.9)); /* Acero: Gris */
+}
+
+.pokemon-card[data-type="normal"] {
+    background: linear-gradient(145deg, rgba(169, 169, 169, 0.9), rgba(128, 128, 128, 0.9)); /* Normal: Gris */
+}
+
+.pokemon-card[data-type="poison"] {
+    background: linear-gradient(145deg, rgba(147, 112, 219, 0.9), rgba(138, 43, 226, 0.9)); /* Veneno: Morado */
+}
+
+.pokemon-card[data-type="ground"] {
+    background: linear-gradient(145deg, rgba(210, 180, 140, 0.9), rgba(139, 69, 19, 0.9)); /* Tierra: Marrón */
+}
+
+.pokemon-card[data-type="rock"] {
+    background: linear-gradient(145deg, rgba(184, 134, 11, 0.9), rgba(139, 69, 19, 0.9)); /* Roca: Dorado/Marrón */
+}
+
+.pokemon-card[data-type="bug"] {
+    background: linear-gradient(145deg, rgba(154, 205, 50, 0.9), rgba(107, 142, 35, 0.9)); /* Bicho: Verde lima */
+}
+
+.pokemon-card[data-type="fairy"] {
+    background: linear-gradient(145deg, rgba(255, 182, 193, 0.9), rgba(255, 105, 180, 0.9)); /* Hada: Rosa */
+}
+
+.pokemon-card[data-type="fighting"] {
+    background: linear-gradient(145deg, rgba(205, 92, 92, 0.9), rgba(139, 0, 0, 0.9)); /* Lucha: Rojo */
+}
+
+.pokemon-card[data-type="dark"] {
+    background: linear-gradient(145deg, rgba(47, 79, 79, 0.9), rgba(0, 0, 0, 0.9)); /* Siniestro: Gris oscuro */
+}
+
+.pokemon-card[data-type="ice"] {
+    background: linear-gradient(145deg, rgba(173, 216, 230, 0.9), rgba(135, 206, 250, 0.9)); /* Hielo: Azul claro */
+}
+
+.pokemon-card[data-type="ghost"] {
+    background: linear-gradient(145deg, rgba(147, 112, 219, 0.9), rgba(75, 0, 130, 0.9)); /* Fantasma: Morado oscuro */
+}
+
+/* Contenedor de partículas */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Evita que las partículas interfieran con los clics */
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+/* Partículas dinámicas */
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    opacity: 0;
+    animation: float 2s infinite ease-in-out;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(calc(100% - 20px), calc(100% - 20px));
+        opacity: 0;
+    }
+}
+
+/* Colores de partículas según el tipo */
+.pokemon-card[data-type="fire"] .particle {
+    background: rgba(255, 69, 0, 0.8); /* Fuego: Naranja/Rojo */
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+}
+
+.pokemon-card[data-type="water"] .particle {
+    background: rgba(30, 144, 255, 0.8); /* Agua: Azul */
+    box-shadow: 0 0 10px rgba(30, 144, 255, 0.8);
+}
+
+.pokemon-card[data-type="grass"] .particle {
+    background: rgba(50, 205, 50, 0.8); /* Planta: Verde */
+    box-shadow: 0 0 10px rgba(50, 205, 50, 0.8);
+}
+
+.pokemon-card[data-type="electric"] .particle {
+    background: rgba(255, 215, 0, 0.8); /* Eléctrico: Amarillo */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.pokemon-card[data-type="psychic"] .particle {
+    background: rgba(255, 105, 180, 0.8); /* Psíquico: Rosa */
+    box-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
+}
+
+.pokemon-card[data-type="flying"] .particle {
+    background: rgba(135, 206, 235, 0.8); /* Volador: Azul cielo */
+    box-shadow: 0 0 10px rgba(135, 206, 235, 0.8);
+}
+
+.pokemon-card[data-type="dragon"] .particle {
+    background: rgba(106, 90, 205, 0.8); /* Dragón: Morado */
+    box-shadow: 0 0 10px rgba(106, 90, 205, 0.8);
+}
+
+.pokemon-card[data-type="steel"] .particle {
+    background: rgba(176, 196, 222, 0.8); /* Acero: Gris */
+    box-shadow: 0 0 10px rgba(176, 196, 222, 0.8);
+}
+
+.pokemon-card[data-type="normal"] .particle {
+    background: rgba(169, 169, 169, 0.8); /* Normal: Gris */
+    box-shadow: 0 0 10px rgba(169, 169, 169, 0.8);
+}
+
+.pokemon-card[data-type="poison"] .particle {
+    background: rgba(147, 112, 219, 0.8); /* Veneno: Morado */
+    box-shadow: 0 0 10px rgba(147, 112, 219, 0.8);
+}
+
+.pokemon-card[data-type="ground"] .particle {
+    background: rgba(210, 180, 140, 0.8); /* Tierra: Marrón */
+    box-shadow: 0 0 10px rgba(210, 180, 140, 0.8);
+}
+
+.pokemon-card[data-type="rock"] .particle {
+    background: rgba(184, 134, 11, 0.8); /* Roca: Dorado */
+    box-shadow: 0 0 10px rgba(184, 134, 11, 0.8);
+}
+
+.pokemon-card[data-type="bug"] .particle {
+    background: rgba(154, 205, 50, 0.8); /* Bicho: Verde lima */
+    box-shadow: 0 0 10px rgba(154, 205, 50, 0.8);
+}
+
+.pokemon-card[data-type="fairy"] .particle {
+    background: rgba(255, 182, 193, 0.8); /* Hada: Rosa */
+    box-shadow: 0 0 10px rgba(255, 182, 193, 0.8);
+}
+
+.pokemon-card[data-type="fighting"] .particle {
+    background: rgba(205, 92, 92, 0.8); /* Lucha: Rojo */
+    box-shadow: 0 0 10px rgba(205, 92, 92, 0.8);
+}
+
+.pokemon-card[data-type="dark"] .particle {
+    background: rgba(47, 79, 79, 0.8); /* Siniestro: Gris oscuro */
+    box-shadow: 0 0 10px rgba(47, 79, 79, 0.8);
+}
+
+.pokemon-card[data-type="ice"] .particle {
+    background: rgba(173, 216, 230, 0.8); /* Hielo: Azul claro */
+    box-shadow: 0 0 10px rgba(173, 216, 230, 0.8);
+}
+
+.pokemon-card[data-type="ghost"] .particle {
+    background: rgba(147, 112, 219, 0.8); /* Fantasma: Morado */
+    box-shadow: 0 0 10px rgba(147, 112, 219, 0.8);
+}

@@ -1,8 +1,49 @@
 /* Estilos generales */
 body {
-    background-color: #f7c945;
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Fondo de la página */
+body.pokemon-background {
+    background: linear-gradient(145deg, #ffcc00, #ff0000); /* Gradiente amarillo/rojo (Pokémon) */
+    min-height: 100vh;
+    position: relative;
+    overflow-y: auto; /* Habilitar scroll vertical */
+}
+
+/* Patrón de Pokébolas */
+body.pokemon-background::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 200%; /* Doble altura para la animación */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3Cline x1='100' y1='10' x2='100' y2='190' stroke='%23ffffff' stroke-width='2'/%3E%3Ccircle cx='100' cy='100' r='30' fill='%23ffffff'/%3E%3C/svg%3E");
+    background-size: 150px 150px; /* Tamaño de las Pokébolas */
+    opacity: 0.1; /* Transparencia del patrón */
+    z-index: 0;
+    animation: moveBackground 40s linear infinite;
+}
+
+/* Animación para el fondo */
+@keyframes moveBackground {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-50%);
+    }
+}
+
+/* Header */
+.header {
+    position: relative;
+    z-index: 1;
 }
 
 .logoPokemon {
@@ -14,16 +55,41 @@ body {
     object-fit: contain;
 }
 
-.header img {
-    width: 200px;
-    margin: 20px auto;
+/* Botón del carrito (sticky) */
+.cart-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1000; /* Asegurar que esté por encima de otros elementos */
 }
 
+.cart-button img {
+    width: 40px;
+    height: auto;
+}
+
+#cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 12px;
+}
+
+/* Barra de búsqueda */
 .search-bar {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    z-index: 1;
+    position: relative;
 }
 
 .search-bar input,
@@ -34,15 +100,21 @@ body {
     border: none;
 }
 
+/* Contenedor de Pokémon */
 .pokemon-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
     max-width: 900px;
-    margin: auto;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Fondo semi-transparente */
+    border-radius: 15px;
+    z-index: 1;
+    position: relative;
 }
 
-/* Estilos para las cartas de Pokémon */
+/* Cartas de Pokémon */
 .pokemon-card {
     background: linear-gradient(145deg, #ffffff, #f0f0f0);
     border-radius: 15px;
@@ -98,7 +170,7 @@ body {
     background-color: #ff0000;
 }
 
-/* Estilos para el botón de inicio de sesión */
+/* Botón de inicio de sesión */
 .login-button {
     position: absolute;
     top: 20px;
@@ -123,155 +195,197 @@ body {
     transform: scale(1.1);
 }
 
-/* Estilos para los modales */
-.modal,
-.cart-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 20px;
-    box-sizing: border-box;
+/* Modal de estadísticas */
+#statsModal .modal-content {
+    background: rgba(255, 255, 255, 0.9); /* Fondo semi-transparente */
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
 }
 
-.modal-content {
-    position: relative;
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-width: 600px;
-    text-align: center;
-}
-
-.modal-image {
-    width: 150px;
-    height: 150px;
-    object-fit: contain;
-    margin: 20px 0;
-}
-
-.modal h2,
-.modal p {
-    color: #333;
-}
-
-.modal ul {
-    text-align: left;
-    list-style-type: none;
-    padding: 0;
-}
-
-.close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #aaa;
-    font-size: 30px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Estilos para el botón del carrito */
-.cart-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-}
-
-.cart-button img {
-    width: 40px;
-    height: auto;
-}
-
-#cart-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: red;
+#statsModal .modal-header {
+    background-color: #3b4cca; /* Azul Pokémon */
     color: white;
-    border-radius: 50%;
-    padding: 5px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
 }
 
-/* Estilos para el modal del carrito */
+#statsModal .modal-title {
+    font-weight: bold;
+}
+
+#statsModal .modal-body img {
+    max-width: 150px;
+    margin: 0 auto;
+}
+
+#statsModal .modal-body ul {
+    text-align: left;
+    margin-top: 10px;
+}
+
+#statsModal .modal-body ul li {
+    margin-bottom: 5px;
+}
+
+/* Fondo del modal según el tipo de Pokémon */
+#statsModal.fire .modal-content {
+    background: linear-gradient(145deg, rgba(255, 69, 0, 0.9), rgba(255, 140, 0, 0.9));
+}
+
+#statsModal.water .modal-content {
+    background: linear-gradient(145deg, rgba(30, 144, 255, 0.9), rgba(0, 191, 255, 0.9));
+}
+
+#statsModal.grass .modal-content {
+    background: linear-gradient(145deg, rgba(50, 205, 50, 0.9), rgba(34, 139, 34, 0.9));
+}
+
+#statsModal.electric .modal-content {
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.9), rgba(255, 140, 0, 0.9));
+}
+
+#statsModal.psychic .modal-content {
+    background: linear-gradient(145deg, rgba(255, 105, 180, 0.9), rgba(138, 43, 226, 0.9));
+}
+
+#statsModal.flying .modal-content {
+    background: linear-gradient(145deg, rgba(135, 206, 235, 0.9), rgba(176, 224, 230, 0.9));
+}
+
+#statsModal.dragon .modal-content {
+    background: linear-gradient(145deg, rgba(106, 90, 205, 0.9), rgba(72, 61, 139, 0.9));
+}
+
+#statsModal.steel .modal-content {
+    background: linear-gradient(145deg, rgba(192, 192, 192, 0.9), rgba(112, 128, 144, 0.9));
+}
+
+#statsModal.normal .modal-content {
+    background: linear-gradient(145deg, rgba(169, 169, 169, 0.9), rgba(128, 128, 128, 0.9));
+}
+
+#statsModal.poison .modal-content {
+    background: linear-gradient(145deg, rgba(147, 112, 219, 0.9), rgba(138, 43, 226, 0.9));
+}
+
+#statsModal.ground .modal-content {
+    background: linear-gradient(145deg, rgba(210, 180, 140, 0.9), rgba(139, 69, 19, 0.9));
+}
+
+#statsModal.rock .modal-content {
+    background: linear-gradient(145deg, rgba(184, 134, 11, 0.9), rgba(139, 69, 19, 0.9));
+}
+
+#statsModal.bug .modal-content {
+    background: linear-gradient(145deg, rgba(154, 205, 50, 0.9), rgba(107, 142, 35, 0.9));
+}
+
+#statsModal.fairy .modal-content {
+    background: linear-gradient(145deg, rgba(255, 182, 193, 0.9), rgba(255, 105, 180, 0.9));
+}
+
+#statsModal.fighting .modal-content {
+    background: linear-gradient(145deg, rgba(205, 92, 92, 0.9), rgba(139, 0, 0, 0.9));
+}
+
+#statsModal.dark .modal-content {
+    background: linear-gradient(145deg, rgba(47, 79, 79, 0.9), rgba(0, 0, 0, 0.9));
+}
+
+#statsModal.ice .modal-content {
+    background: linear-gradient(145deg, rgba(173, 216, 230, 0.9), rgba(135, 206, 250, 0.9));
+}
+
+#statsModal.ghost .modal-content {
+    background: linear-gradient(145deg, rgba(147, 112, 219, 0.9), rgba(75, 0, 130, 0.9));
+}
+
+/* Modal del carrito */
 .cart-modal {
     position: fixed;
     top: 0;
-    left: 0;
-    width: 400px;
+    left: -450px; /* Inicialmente fuera de la pantalla */
+    width: 450px; /* Aumentar el ancho del modal */
     height: 100%;
     background-color: #fff;
-    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
     z-index: 1000;
-    padding: 20px;
+    padding: 25px; /* Más espacio interno */
     overflow-y: auto;
     transition: transform 0.3s ease-in-out;
-    transform: translateX(-100%);
-    display: block;
-    opacity: 0;
-    pointer-events: none;
 }
 
 .cart-modal.show {
-    transform: translateX(0);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translateX(450px); /* Desplazar hacia la derecha */
 }
 
 .cart-modal-content {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px; /* Más espacio entre elementos */
+}
+
+.cart-modal h2 {
+    font-size: 1.8em; /* Título más grande */
+    color: #2c3e50; /* Color oscuro para el título */
+    margin-bottom: 20px; /* Espacio debajo del título */
+    text-align: center; /* Centrar el título */
 }
 
 .cart-modal .cart-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
-    padding: 10px;
-    background-color: #f7c945;
-    border-radius: 5px;
+    margin-bottom: 15px; /* Más espacio entre ítems */
+    padding: 15px; /* Más espacio interno */
+    background-color: #f7c945; /* Fondo amarillo Pokémon */
+    border-radius: 10px; /* Bordes más redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Efecto hover */
 }
 
-.cart-modal button {
-    align-self: flex-start;
-    padding: 10px 20px;
-    background-color: #ff0000;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
+.cart-modal .cart-item:hover {
+    transform: translateY(-3px); /* Efecto de levantar */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada al hover */
 }
 
-/* Estilos para los botones de aumentar/disminuir */
+.cart-modal .cart-item img {
+    width: 60px; /* Imagen más grande */
+    height: 60px;
+    margin-right: 15px; /* Más espacio entre la imagen y el texto */
+    border-radius: 10px; /* Bordes redondeados para la imagen */
+}
+
+.cart-modal .cart-item span {
+    flex: 1; /* Hacer que el texto ocupe el espacio disponible */
+    margin: 0 10px; /* Espacio entre los textos */
+    font-size: 1em; /* Tamaño de fuente más grande */
+    color: #333; /* Color de texto oscuro */
+}
+
+.cart-modal .cart-item .quantity-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.cart-modal .cart-item .quantity-control > div {
+    display: flex;
+    gap: 5px;
+}
+
+/* Botones de aumentar/disminuir */
 .increase-btn,
 .decrease-btn {
     border: none;
-    padding: 5px 10px;
-    border-radius: 20px;
+    padding: 8px 12px; /* Más espacio interno */
+    border-radius: 50%; /* Botones redondos */
     cursor: pointer;
-    margin: 5px 2px;
-    font-size: 12px;
-    width: 30px;
-    height: 30px;
+    font-size: 14px; /* Tamaño de fuente más grande */
+    width: 35px; /* Botones más grandes */
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -293,233 +407,58 @@ body {
     cursor: not-allowed;
 }
 
-.quantity-control {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.quantity-control > div {
-    display: flex;
-    gap: 5px;
-}
-
-/* Colores de fondo según el tipo de Pokémon */
-.pokemon-card[data-type="fire"] {
-    background: linear-gradient(145deg, #ff7f50, #ff4500); /* Fuego: Naranja/Rojo */
+/* Botón para eliminar */
+.remove-item-btn {
+    background-color: #ff0000; /* Rojo */
     color: white;
-}
-
-.pokemon-card[data-type="water"] {
-    background: linear-gradient(145deg, #1e90ff, #00bfff); /* Agua: Azul */
-    color: white;
-}
-
-.pokemon-card[data-type="grass"] {
-    background: linear-gradient(145deg, #32cd32, #228b22); /* Planta: Verde */
-    color: white;
-}
-
-.pokemon-card[data-type="electric"] {
-    background: linear-gradient(145deg, #ffd700, #ff8c00); /* Eléctrico: Amarillo */
-    color: white;
-}
-
-.pokemon-card[data-type="psychic"] {
-    background: linear-gradient(145deg, #ff69b4, #8a2be2); /* Psíquico: Rosa */
-    color: white;
-}
-
-.pokemon-card[data-type="flying"] {
-    background: linear-gradient(145deg, #87ceeb, #b0c4de); /* Volador: Azul cielo */
-    color: white;
-}
-
-.pokemon-card[data-type="dragon"] {
-    background: linear-gradient(145deg, #6a5acd, #483d8b); /* Dragón: Morado */
-    color: white;
-}
-
-.pokemon-card[data-type="steel"] {
-    background: linear-gradient(145deg, #b0c4de, #708090); /* Acero: Gris */
-    color: white;
-}
-
-.pokemon-card[data-type="normal"] {
-    background: linear-gradient(145deg, #a9a9a9, #808080); /* Normal: Gris */
-    color: white;
-}
-
-.pokemon-card[data-type="poison"] {
-    background: linear-gradient(145deg, #9370db, #8a2be2); /* Veneno: Morado */
-    color: white;
-}
-
-.pokemon-card[data-type="ground"] {
-    background: linear-gradient(145deg, #d2b48c, #8b4513); /* Tierra: Marrón */
-    color: white;
-}
-
-.pokemon-card[data-type="rock"] {
-    background: linear-gradient(145deg, #b8860b, #8b7355); /* Roca: Dorado */
-    color: white;
-}
-
-.pokemon-card[data-type="bug"] {
-    background: linear-gradient(145deg, #9acd32, #6b8e23); /* Bicho: Verde lima */
-    color: white;
-}
-
-.pokemon-card[data-type="fairy"] {
-    background: linear-gradient(145deg, #ffb6c1, #ff69b4); /* Hada: Rosa */
-    color: white;
-}
-
-.pokemon-card[data-type="fighting"] {
-    background: linear-gradient(145deg, #cd5c5c, #8b0000); /* Lucha: Rojo */
-    color: white;
-}
-
-.pokemon-card[data-type="dark"] {
-    background: linear-gradient(145deg, #2f4f4f, #000000); /* Siniestro: Gris oscuro */
-    color: white;
-}
-
-.pokemon-card[data-type="ice"] {
-    background: linear-gradient(145deg, #add8e6, #87cefa); /* Hielo: Azul claro */
-    color: white;
-}
-
-.pokemon-card[data-type="ghost"] {
-    background: linear-gradient(145deg, #9370db, #4b0082); /* Fantasma: Morado */
-    color: white;
-}
-
-/* Contenedor de partículas */
-.particles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Evita que las partículas interfieran con los clics */
-    overflow: hidden;
-    border-radius: 15px;
-}
-
-/* Partículas dinámicas */
-.particle {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.8);
-    width: 10px;
-    height: 10px;
+    border: none;
     border-radius: 50%;
-    opacity: 0;
-    animation: float 2s infinite ease-in-out;
+    width: 30px; /* Botón más grande */
+    height: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
 }
 
-@keyframes float {
-    0% {
-        transform: translate(0, 0);
-        opacity: 0;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        transform: translate(calc(100% - 20px), calc(100% - 20px));
-        opacity: 0;
-    }
+.remove-item-btn:hover {
+    background-color: #cc0000; /* Rojo más oscuro al pasar el mouse */
 }
 
-/* Colores de partículas según el tipo */
-.pokemon-card[data-type="fire"] .particle {
-    background: rgba(255, 69, 0, 0.8); /* Fuego: Naranja/Rojo */
-    box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+/* Estilos para el precio total */
+.total-price {
+    text-align: right;
+    margin-top: 20px;
+    padding: 15px; /* Más espacio interno */
+    background-color: #f7c945; /* Fondo amarillo Pokémon */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
 
-.pokemon-card[data-type="water"] .particle {
-    background: rgba(30, 144, 255, 0.8); /* Agua: Azul */
-    box-shadow: 0 0 10px rgba(30, 144, 255, 0.8);
+.total-price h3 {
+    margin: 10px 0;
+    font-size: 1.5em;
+    color: #2c3e50; /* Color oscuro para el texto */
 }
 
-.pokemon-card[data-type="grass"] .particle {
-    background: rgba(50, 205, 50, 0.8); /* Planta: Verde */
-    box-shadow: 0 0 10px rgba(50, 205, 50, 0.8);
+/* Estilos para el botón de pagar */
+.pay-button {
+    background-color: #3b4cca; /* Azul Pokémon */
+    color: white;
+    border: none;
+    padding: 12px 24px; /* Más espacio interno */
+    border-radius: 10px; /* Bordes más redondeados */
+    cursor: pointer;
+    font-size: 1.1em; /* Tamaño de fuente más grande */
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Ocupar todo el ancho disponible */
+    margin-top: 15px; /* Espacio superior */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave */
 }
 
-.pokemon-card[data-type="electric"] .particle {
-    background: rgba(255, 215, 0, 0.8); /* Eléctrico: Amarillo */
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-}
-
-.pokemon-card[data-type="psychic"] .particle {
-    background: rgba(255, 105, 180, 0.8); /* Psíquico: Rosa */
-    box-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
-}
-
-.pokemon-card[data-type="flying"] .particle {
-    background: rgba(135, 206, 235, 0.8); /* Volador: Azul cielo */
-    box-shadow: 0 0 10px rgba(135, 206, 235, 0.8);
-}
-
-.pokemon-card[data-type="dragon"] .particle {
-    background: rgba(106, 90, 205, 0.8); /* Dragón: Morado */
-    box-shadow: 0 0 10px rgba(106, 90, 205, 0.8);
-}
-
-.pokemon-card[data-type="steel"] .particle {
-    background: rgba(176, 196, 222, 0.8); /* Acero: Gris */
-    box-shadow: 0 0 10px rgba(176, 196, 222, 0.8);
-}
-
-.pokemon-card[data-type="normal"] .particle {
-    background: rgba(169, 169, 169, 0.8); /* Normal: Gris */
-    box-shadow: 0 0 10px rgba(169, 169, 169, 0.8);
-}
-
-.pokemon-card[data-type="poison"] .particle {
-    background: rgba(147, 112, 219, 0.8); /* Veneno: Morado */
-    box-shadow: 0 0 10px rgba(147, 112, 219, 0.8);
-}
-
-.pokemon-card[data-type="ground"] .particle {
-    background: rgba(210, 180, 140, 0.8); /* Tierra: Marrón */
-    box-shadow: 0 0 10px rgba(210, 180, 140, 0.8);
-}
-
-.pokemon-card[data-type="rock"] .particle {
-    background: rgba(184, 134, 11, 0.8); /* Roca: Dorado */
-    box-shadow: 0 0 10px rgba(184, 134, 11, 0.8);
-}
-
-.pokemon-card[data-type="bug"] .particle {
-    background: rgba(154, 205, 50, 0.8); /* Bicho: Verde lima */
-    box-shadow: 0 0 10px rgba(154, 205, 50, 0.8);
-}
-
-.pokemon-card[data-type="fairy"] .particle {
-    background: rgba(255, 182, 193, 0.8); /* Hada: Rosa */
-    box-shadow: 0 0 10px rgba(255, 182, 193, 0.8);
-}
-
-.pokemon-card[data-type="fighting"] .particle {
-    background: rgba(205, 92, 92, 0.8); /* Lucha: Rojo */
-    box-shadow: 0 0 10px rgba(205, 92, 92, 0.8);
-}
-
-.pokemon-card[data-type="dark"] .particle {
-    background: rgba(47, 79, 79, 0.8); /* Siniestro: Gris oscuro */
-    box-shadow: 0 0 10px rgba(47, 79, 79, 0.8);
-}
-
-.pokemon-card[data-type="ice"] .particle {
-    background: rgba(173, 216, 230, 0.8); /* Hielo: Azul claro */
-    box-shadow: 0 0 10px rgba(173, 216, 230, 0.8);
-}
-
-.pokemon-card[data-type="ghost"] .particle {
-    background: rgba(147, 112, 219, 0.8); /* Fantasma: Morado */
-    box-shadow: 0 0 10px rgba(147, 112, 219, 0.8);
+.pay-button:hover {
+    background-color: #ff0000; /* Rojo al pasar el mouse */
+    transform: translateY(-2px); /* Efecto de levantar */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada al hover */
 }
