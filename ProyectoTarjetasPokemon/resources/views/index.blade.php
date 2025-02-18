@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Pokedex')</title>
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/fondoParticulas.css') }}"> <!-- Asegúrate de que la ruta sea correcta -->
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="pokemon-background">
 
     <div class="header">
         <img class="logoPokemon" src="{{ asset('resources/imagenes/pokemonlogo.png') }}" alt="Pokémon Logo"> 
@@ -15,7 +18,7 @@
     <!-- Agregar el ícono del carrito en la cabecera -->
 <div class="header">
     <button class="cart-button" onclick="toggleCart()">
-        <img src="{{ asset('resources/imagenes/carrito.png') }}" alt="Carrito"> <!-- Cambia este src por el de la imagen que deseas usar -->
+        <img src="{{ asset('resources\imagenes\carrito-de-compras.png') }}" alt="Carrito">  
         <span id="cart-count">0</span> <!-- Número de productos en el carrito -->
     </button>
 </div>
@@ -52,18 +55,32 @@
 
     <div class="pokemon-container"></div>
 
-    <div class="modal" id="modal">
+    <!-- Modal de Bootstrap -->
+    <div class="modal fade" id="statsModal" tabindex="-1" aria-labelledby="statsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <img src="{{ asset('recursos/imagenes/pokebola.png') }}" alt="Pokébola" id="modal-image" class="modal-image">
-            <h2 id="modal-title">Título del Modal</h2>
-            <p id="modal-price">Texto dentro del modal</p>
-            <ul id="modal-stats"></ul> <!-- Aquí se muestran las estadísticas -->
-            <span class="close" onclick="cerrarModal()">&times;</span>
+            <div class="modal-header">
+                <h5 class="modal-title" id="statsModalLabel">Estadísticas de Pokémon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center position-relative">
+                <!-- Contenedor de partículas -->
+                <div class="particles-container"></div>
+                <img id="modal-image" src="" alt="Pokémon" class="img-fluid mb-3">
+                <h3 id="modal-title"></h3>
+                <p id="modal-price"></p>
+                <ul id="modal-stats" class="list-unstyled"></ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal del carrito -->
-    <div class="cart-modal" id="cart-modal">
+    
+<!-- Modal del carrito -->
+<div class="cart-modal" id="cart-modal">
     <div class="cart-modal-content">
         <h2>Tu Carrito</h2>
         <div id="cart-list">
@@ -73,7 +90,7 @@
     </div>
 </div>
 
-    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/script.js') }}"></script>
 </body>
 </html>
