@@ -6,7 +6,6 @@
     <title>TAZ PIZZA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/paginaIndex.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/CarruselFotos.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -26,8 +25,8 @@
                         <a class="nav-link active" href="#">Inicio</a>
                     </li>
                     <li class="nav-item">
-             <a class="nav-link" href="" id="menuLink">Menú</a>
-                </li>
+                        <a class="nav-link" href="#">Menú</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Pedidos</a>
                     </li>
@@ -38,7 +37,7 @@
                 <div class="ms-3">
                     <button class="btn btn-outline-light" onclick="toggleCart()">
                         <img src="resources/imagenes/carritoLogo.png" alt="Carrito" height="30">
-                        <span id="cartCount"></span>
+                        <span id="cartCount">0</span>
                     </button>
                 </div>
             </div>
@@ -46,25 +45,44 @@
     </nav>
 
     <!-- Carrito desplegable -->
-<div id="cartSidebar" class="cart-sidebar">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div id="cartSidebar" class="cart-sidebar">
         <h3 class="text-center">Tu Carrito</h3>
-        <button class="btn btn-close" onclick="toggleCart()"></button> <!-- Botón "X" -->
+        <div id="cartItems" class="cart-items">
+            <!-- Los productos del carrito se generarán dinámicamente con JS -->
+        </div>
+        <div class="text-center">
+            <h4>Total: <span id="cartTotal">$0.00</span></h4>
+            <button class="btn btn-danger" onclick="clearCart()">Vaciar Carrito</button>
+        </div>
     </div>
-    <div id="cartItems" class="cart-items">
-        <!-- Los productos del carrito se generarán dinámicamente con JS -->
-    </div>
-    <div class="text-center">
-        <h4>Total: <span id="cartTotal">$0.00</span></h4>
-        <button class="btn btn-danger" onclick="clearCart()">Vaciar Carrito</button>
-    </div>
-</div>
 
+    <!-- Modal para seleccionar tamaño -->
+    <div class="modal fade" id="sizeModal" tabindex="-1" aria-labelledby="sizeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sizeModalLabel">Selecciona el tamaño</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <select class="form-select" id="sizeSelect">
+                        <option value="chica">Chica</option>
+                        <option value="mediana">Mediana</option>
+                        <option value="grande">Grande</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmSize()">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Header -->
     <header class="hero-section text-center py-5">
         <div class="container">
-            <h1 class="display-4 fw-bold text-white">TAZ PIZZA</h1>
+            <h1 class="display-4 fw-bold text-white">Bienvenido a TAZ PIZZA</h1>
             <p class="lead text-light">Desde 1994 sirviendo las mejores pizzas</p>
             <a href="#" class="btn btn-primary btn-lg mt-3">
                 <img src="resources/imagenes/repartidorLogo.png" alt="Entrega a Domicilio" height="30" class="me-2">
@@ -77,75 +95,37 @@
         </div>
     </header>
 
-   <!-- Sección de imágenes en cuadrícula -->
-<section class="my-5">
-    <div class="container">
-        <h2 class="text-center fw-bold mb-4" style="font-family: 'Fredoka One', cursive;">NUESTROS PRODUCTOS</h2>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            <!-- Imagen 1 -->
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="/resources/imagenes/comida1.jpg" class="card-img-top" alt="Pizza Clásica">
-                    <div class="card-body">
-                        <h5 class="card-title">COMBO MIX PARA COMPARTIR</h5>
-                        <p class="card-text">Disfruta de nuestras deliciosas alitas, bongless, dedos de queso que estan para chuparse los dedos.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Imagen 2 -->
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="/resources/imagenes/comida2.jpg" class="card-img-top" alt="Pizza Hawaiana">
-                    <div class="card-body">
-                        <h5 class="card-title">Pastas Alfredo</h5>
-                        <p class="card-text">De italia a tu mesa, la mejor pasta que puedas probar aqui en TazPizza.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Imagen 3 -->
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="/resources/imagenes/comida3.jpg" class="card-img-top" alt="Pizza Mexicana">
-                    <div class="card-body">
-                        <h5 class="card-title">Hamburguesa Clasica </h5>
-                        <p class="card-text">¡La hamburguesa que conquistará tu paladar!</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Imagen 4 -->
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="/resources/imagenes/comida4.jpg" class="card-img-top" alt="Pizza Pepperoni">
-                    <div class="card-body">
-                        <h5 class="card-title">MIX AMIGOS</h5>
-                        <p class="card-text">Bonelees? Alitas? Aros de cebolla? TODO EN UN PAQUETE PARA TI.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Imagen 5 -->
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="/resources/imagenes/comida5.jpg" class="card-img-top" alt="Pizza Vegetariana">
-                    <div class="card-body">
-                        <h5 class="card-title">Pizza 2 especialidades</h5>
-                        <p class="card-text">Quieres peperonni o quieres Hawaiana? PORQUE NO LAS 2¡¡¡¡.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Imagen 6 -->
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="/resources/imagenes/comida6.jpg" class="card-img-top" alt="Pizza Cuatro Quesos">
-                    <div class="card-body">
-                        <h5 class="card-title">Tacos de Camaron</h5>
-                        <p class="card-text">exquisitos Tacos de tortilla echa a mano con camarones a la diavla con queso.</p>
-                    </div>
-                </div>
-            </div>
+    <!-- Menú de Pizzas -->
+    <section class="container my-5">
+        <h2 class="text-center mb-4 fw-bold" style="font-family: 'Fredoka One', cursive;">Nuestras Pizzas</h2>
+        <div class="row g-4" id="pizzaMenu">
+            <!-- Las pizzas se generarán dinámicamente con JS -->
         </div>
-    </div>
-</section>
+    </section>
 
+    <!-- Menú de Hotdogs -->
+    <section class="container my-5">
+        <h2 class="text-center mb-4 fw-bold" style="font-family: 'Fredoka One', cursive;">Hotdogs</h2>
+        <div class="row g-4" id="hotdogMenu">
+            <!-- Los hotdogs se generarán dinámicamente con JS -->
+        </div>
+    </section>
+
+    <!-- Menú de Hamburguesas -->
+    <section class="container my-5">
+        <h2 class="text-center mb-4 fw-bold" style="font-family: 'Fredoka One', cursive;">Hamburguesas</h2>
+        <div class="row g-4" id="burgerMenu">
+            <!-- Las hamburguesas se generarán dinámicamente con JS -->
+        </div>
+    </section>
+
+    <!-- Menú de Papas -->
+    <section class="container my-5">
+        <h2 class="text-center mb-4 fw-bold" style="font-family: 'Fredoka One', cursive;">Papas</h2>
+        <div class="row g-4" id="potatoMenu">
+            <!-- Las papas se generarán dinámicamente con JS -->
+        </div>
+    </section>
 
     <!-- Promociones -->
     <section class="bg-light py-5">
@@ -187,8 +167,7 @@
         </div>
     </footer>
 
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/enlaces.js') }}"></script>
+    <script src="{{ asset('js/datosPizza.js') }}"></script>
 </body>
 </html>

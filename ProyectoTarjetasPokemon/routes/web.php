@@ -1,23 +1,15 @@
 <?php
 
+use App\Http\Controllers\PokemonController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
+// Ruta principal
 Route::get('/', function () {
     return view('index');
 });
 
-Route::get('/datosPago', function () {
-    $total = request('total', 0); // Obtener el total de la URL (valor predeterminado: 0)
-    return view('datosPago', ['total' => $total]); // Pasar el total a la vista
-});
+// Rutas para la API de Pokémon
+Route::get('/api/pokemon', [PokemonController::class, 'index']);
+Route::get('/api/pokemon/type/{type}', [PokemonController::class, 'getByType']);
+Route::get('/api/pokemon/search', [PokemonController::class, 'search']);
+Route::get('/api/pokemon/{id}', [PokemonController::class, 'show']);
