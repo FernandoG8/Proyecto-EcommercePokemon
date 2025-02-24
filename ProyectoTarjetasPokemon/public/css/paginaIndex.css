@@ -1,0 +1,157 @@
+/* Colores principales */
+:root {
+    --red: #e74c3c;
+    --white: #ffffff;
+    --black: #2c3e50;
+    --gray: #ecf0f1;
+    --yellow: #f1c40f;
+    --dark: #34495e;
+}
+
+/* Fuentes */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--white);
+    color: var(--black);
+}
+
+h1, h2, h3 {
+    font-family: 'Fredoka One', cursive;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--dark) !important;
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+}
+
+.nav-link {
+    color: var(--white) !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--yellow) !important;
+}
+
+/* Header */
+.hero-section {
+    background: linear-gradient(45deg, var(--red), var(--yellow));
+    padding: 6rem 0;
+}
+
+.hero-section h1 {
+    font-size: 4rem;
+}
+
+.hero-section p {
+    font-size: 1.5rem;
+}
+
+/* Botones */
+.btn {
+    border: none;
+    padding: 0.75rem 2rem;
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background-color: #c0392b;
+}
+
+.btn-danger {
+    background-color: var(--yellow);
+    color: var(--black);
+}
+
+.btn-danger:hover {
+    background-color: #f39c12;
+}
+
+/* Tarjetas */
+.card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: perspective(1000px) rotateX(10deg) rotateY(10deg);
+    box-shadow: 20px 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.card-img-top {
+    border-radius: 10px 10px 0 0;
+}
+
+.card-body {
+    background-color: var(--gray);
+}
+
+/* Carrito desplegable */
+
+
+/* Footer */
+footer {
+    background-color: var(--dark);
+    padding: 2rem 0;
+}
+
+footer a {
+    color: var(--yellow);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--red);
+}
+
+
+/* Carrito desplegable */
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px; /* Increased width */
+    width: 400px; /* Increased width */
+    height: 100%;
+    background-color: var(--white);
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    padding: 30px; /* Increased padding */
+    z-index: 1000;
+}
+
+.cart-sidebar.active {
+    right: 0;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px; /* Increased margin */
+}
+
+/* Botón "X" para cerrar el carrito */
+.cart-sidebar .btn-close {
+    font-size: 1.5rem;
+    color: var(--black);
+    background-color: var(--gray); /* Added background color */
+    border: none;
+    cursor: pointer;
+}
+
+.cart-sidebar .btn-close:hover {
+    color: var(--red);
+}
