@@ -1,5 +1,4 @@
-
-
+document.addEventListener("DOMContentLoaded", function () {
     // Datos de las pizzas
     const pizzas = [
         { name: "Queso", prices: { chica: 60, mediana: 130, grande: 160 }, description: "Deliciosa pizza con extra quesito derretido, perfecta para los amantes del queso." },
@@ -41,28 +40,55 @@
 
     // Carrito
     let cart = [];
-
-    // Variable para almacenar la pizza seleccionada
+    // Variable para la pizza seleccionada
     let selectedPizza = null;
 
-    // Función para abrir el modal de selección de tamaño
+    // ----------------------
+    // FUNCIONES PRINCIPALES
+    // ----------------------
+
+    // Mostrar/ocultar el carrito
+    function toggleCart() {
+        const cartSidebar = document.getElementById("cartSidebar");
+        cartSidebar.classList.toggle("active");
+    }
+
+    // Abrir el modal de selección de tamaño (usado en el HTML dinámico)
     window.openSizeModal = function (pizza) {
         selectedPizza = pizza;
         const modal = new bootstrap.Modal(document.getElementById('sizeModal'));
         modal.show();
     };
 
-    // Función para confirmar el tamaño seleccionado
-    window.confirmSize = function () {
+    // Confirmar el tamaño (sin onclick en HTML; lo enganchamos abajo con un eventListener)
+    function confirmSize() {
         const size = document.getElementById('sizeSelect').value;
         const price = selectedPizza.prices[size];
         cart.push({ name: `${selectedPizza.name} (${size})`, price });
         updateCart();
         const modal = bootstrap.Modal.getInstance(document.getElementById('sizeModal'));
         modal.hide();
+    }
+
+    // Agregar al carrito para hotdogs, hamburguesas, papas (usado en el HTML dinámico)
+    window.addToCart = function (name, price) {
+        cart.push({ name, price });
+        updateCart();
     };
 
-    // Función para actualizar el carrito
+    // Eliminar del carrito (usado en el HTML dinámico)
+    window.removeFromCart = function (index) {
+        cart.splice(index, 1);
+        updateCart();
+    };
+
+    // Vaciar el carrito (sin onclick en HTML; lo enganchamos abajo con un eventListener)
+    function clearCart() {
+        cart = [];
+        updateCart();
+    }
+
+    // Actualizar el carrito
     function updateCart() {
         const cartItems = document.getElementById("cartItems");
         const cartTotal = document.getElementById("cartTotal");
@@ -75,6 +101,7 @@
                 <div class="cart-item">
                     <span>${item.name}</span>
                     <span>$${item.price}</span>
+                    <!-- removeFromCart se llama dinámicamente, por eso sigue en window -->
                     <button class="btn btn-danger btn-sm" onclick="removeFromCart(${index})">Eliminar</button>
                 </div>
             `;
@@ -85,25 +112,11 @@
         cartCount.textContent = cart.length;
     }
 
-    // Función para eliminar del carrito
-    window.removeFromCart = function (index) {
-        cart.splice(index, 1);
-        updateCart();
-    };
+    // --------------------------
+    // GENERAR MENÚS DINÁMICOS
+    // --------------------------
 
-    // Función para vaciar el carrito
-    window.clearCart = function () {
-        cart = [];
-        updateCart();
-    };
-
-    // Función para mostrar/ocultar el carrito
-    window.toggleCart = function () {
-        const cartSidebar = document.getElementById("cartSidebar");
-        cartSidebar.classList.toggle("active");
-    };
-
-    // Generar menú de pizzas dinámicamente
+    // Generar menú de pizzas
     function generatePizzaMenu() {
         const container = document.getElementById("pizzaMenu");
         if (!container) {
@@ -117,8 +130,16 @@
                         <div class="card-body">
                             <h3 class="card-title">${pizza.name}</h3>
                             <p class="card-text">${pizza.description}</p>
-                            <p class="card-text">Chica: $${pizza.prices.chica} | Mediana: $${pizza.prices.mediana} | Grande: $${pizza.prices.grande}</p>
-                            <button class="btn btn-primary" onclick="openSizeModal(${JSON.stringify(pizza).replace(/"/g, '&quot;')})">Agregar al Carrito</button>
+                            <p class="card-text">
+                                Chica: $${pizza.prices.chica} | 
+                                Mediana: $${pizza.prices.mediana} | 
+                                Grande: $${pizza.prices.grande}
+                            </p>
+                            <!-- openSizeModal se llama dinámicamente con la pizza -->
+                            <button class="btn btn-primary"
+                                onclick="openSizeModal(${JSON.stringify(pizza).replace(/"/g, '&quot;')})">
+                                Agregar al Carrito
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -127,7 +148,7 @@
         });
     }
 
-    // Generar menú de otros productos (hotdogs, hamburguesas, papas)
+    // Generar menú genérico (hotdogs, hamburguesas, papas)
     function generateMenu(items, containerId) {
         const container = document.getElementById(containerId);
         if (!container) {
@@ -142,7 +163,11 @@
                             <h3 class="card-title">${item.name}</h3>
                             <p class="card-text">${item.description}</p>
                             <p class="card-text">$${item.price}</p>
-                            <button class="btn btn-primary" onclick="addToCart('${item.name}', ${item.price})">Agregar al Carrito</button>
+                            <!-- addToCart se llama dinámicamente con nombre y precio -->
+                            <button class="btn btn-primary" 
+                                onclick="addToCart('${item.name}', ${item.price})">
+                                Agregar al Carrito
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -151,16 +176,27 @@
         });
     }
 
-    // Función para agregar al carrito (para hotdogs, hamburguesas y papas)
-    window.addToCart = function (name, price) {
-        cart.push({ name, price });
-        updateCart();
-    };
+    // -------------------------------
+    // INICIALIZACIÓN DE LA APLICACIÓN
+    // -------------------------------
 
-    // Inicializar menús
+    // Botón del carrito
+    const cartButton = document.getElementById("carButton");
+    cartButton.addEventListener("click", toggleCart);
+
+    // Botón "Vaciar Carrito"
+    const clearCartButton = document.getElementById("clearCartButton");
+    clearCartButton.addEventListener("click", clearCart);
+
+    // Botón "Confirmar" en el modal
+    const confirmSizeButton = document.getElementById("confirmSizeButton");
+    confirmSizeButton.addEventListener("click", confirmSize);
+
+    // Generar menús
     generatePizzaMenu();
     generateMenu(hotdogs, "hotdogMenu");
     generateMenu(hamburguesas, "burgerMenu");
     generateMenu(papas, "potatoMenu");
 
-    console.log('Archivo pizzas.js cargado correctamente');
+    console.log('Archivo datosPizza.js cargado correctamente');
+});

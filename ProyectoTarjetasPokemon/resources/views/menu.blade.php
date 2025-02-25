@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TAZ PIZZA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tu archivo de estilos -->
     <link rel="stylesheet" href="{{ asset('css/paginaIndex.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Fredoka+One&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="resources/imagenes/pizzaLogopreview.png" alt="TAZ PIZZA" height="50" class="me-2">
+                <!-- Cambiado a asset('storage/images/pizzaLogopreview.png') -->
+                <img src="{{ asset('storage/images/pizzaLogopreview.png') }}" alt="TAZ PIZZA" height="50" class="me-2">
                 <span class="fs-3 fw-bold" style="font-family: 'Fredoka One', cursive;">TAZ PIZZA</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -25,7 +32,7 @@
                         <a class="nav-link active" href="#">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Menú</a>
+                        <a class="nav-link" href="/Menu">Menú</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Pedidos</a>
@@ -35,8 +42,9 @@
                     </li>
                 </ul>
                 <div class="ms-3">
-                    <button class="btn btn-outline-light" onclick="toggleCart()">
-                        <img src="resources/imagenes/carritoLogo.png" alt="Carrito" height="30">
+                    <!-- Cambiado a asset('storage/images/carritoLogo.png') -->
+                    <button id="carButton" class="btn btn-outline-light">
+                        <img src="{{ asset('storage/images/carritoCompras.png') }}" alt="Carrito" height="30">
                         <span id="cartCount">0</span>
                     </button>
                 </div>
@@ -52,7 +60,8 @@
         </div>
         <div class="text-center">
             <h4>Total: <span id="cartTotal">$0.00</span></h4>
-            <button class="btn btn-danger" onclick="clearCart()">Vaciar Carrito</button>
+            <!-- Se quita onclick; se usará addEventListener en JS -->
+            <button id="clearCartButton" class="btn btn-danger">Vaciar Carrito</button>
         </div>
     </div>
 
@@ -73,7 +82,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" onclick="confirmSize()">Confirmar</button>
+                    <!-- Se quita onclick; se usará addEventListener en JS -->
+                    <button id="confirmSizeButton" type="button" class="btn btn-primary">Confirmar</button>
                 </div>
             </div>
         </div>
@@ -85,11 +95,14 @@
             <h1 class="display-4 fw-bold text-white">Bienvenido a TAZ PIZZA</h1>
             <p class="lead text-light">Desde 1994 sirviendo las mejores pizzas</p>
             <a href="#" class="btn btn-primary btn-lg mt-3">
-                <img src="resources/imagenes/repartidorLogo.png" alt="Entrega a Domicilio" height="30" class="me-2">
+                <!-- Cambiado a asset('storage/images/repartidorLogo.png') -->
+                <img src="{{ asset('storage/images/repartidorLogo.png') }}" alt="Entrega a Domicilio" height="30"
+                    class="me-2">
                 Entrega a Domicilio
             </a>
             <a href="#" class="btn btn-primary btn-lg mt-3">
-                <img src="resources/imagenes/localLogo.png" alt="Recoger en Tienda" height="30" class="me-2">
+                <!-- Cambiado a asset('storage/images/localLogo.png') -->
+                <img src="{{ asset('storage/images/localLogo.png') }}" alt="Recoger en Tienda" height="30" class="me-2">
                 Recoger en Tienda
             </a>
         </div>
@@ -159,15 +172,18 @@
     <footer class="bg-dark text-white text-center py-4">
         <div class="container">
             <p class="mb-0">&copy; 2023 TAZ PIZZA. Todos los derechos reservados.</p>
-            <p class="mb-0">Síguenos en redes sociales: 
-                <a href="#" class="text-danger">Facebook</a> | 
-                <a href="#" class="text-danger">Instagram</a> | 
+            <p class="mb-0">
+                Síguenos en redes sociales:
+                <a href="#" class="text-danger">Facebook</a> |
+                <a href="#" class="text-danger">Instagram</a> |
                 <a href="#" class="text-danger">Twitter</a>
             </p>
         </div>
     </footer>
 
+    <!-- Bootstrap y tu archivo JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/datosPizza.js') }}"></script>
 </body>
+
 </html>
