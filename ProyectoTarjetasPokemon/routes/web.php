@@ -10,3 +10,6 @@ Route::get('/Inicio', function () {
 Route::get('/Menu', function () {
     return view('menu');
 });
+Route::get('/Registro', function () {
+    return view('registro');
+});
