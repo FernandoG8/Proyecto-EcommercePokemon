@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\PizzaToppingController;
 use App\Http\Controllers\Api\PizzaSizeController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
-
+use App\Http\Controllers\Api\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,7 +26,6 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/{product}', [ProductController::class, 'show']);
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
-    Route::get('/toppings', [PizzaToppingController::class, 'index']);
     Route::get('/sizes', [PizzaSizeController::class, 'index']);
 });
 
@@ -60,11 +59,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{product}', [ProductController::class, 'update']);
         Route::delete('/products/{product}', [ProductController::class, 'destroy']);
-        
-        // Gestión de toppings
-        Route::post('/toppings', [PizzaToppingController::class, 'store']);
-        Route::put('/toppings/{pizzaTopping}', [PizzaToppingController::class, 'update']);
-        Route::delete('/toppings/{pizzaTopping}', [PizzaToppingController::class, 'destroy']);
         
         // Gestión de tamaños
         Route::post('/sizes', [PizzaSizeController::class, 'store']);

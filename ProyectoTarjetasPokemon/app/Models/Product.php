@@ -25,8 +25,4 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function toppings()
-    {
-        return $this->belongsToMany(PizzaTopping::class, 'product_topping', 'product_id', 'pizza_topping_id');
-    }
 }

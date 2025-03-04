@@ -19,22 +19,23 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'address' => 'nullable|string',
             'phone' => 'nullable|string',
+            'role' => 'required|string|in:admin,customer', // Asegúrate de validar el rol
         ]);
-
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'address' => $request->address,
             'phone' => $request->phone,
-            'role' => 'customer', // Default role
+            'role' => $request->role, // Asigna el rol
         ]);
-
-        // Create a cart for the user
+    
+        // Crear un carrito para el usuario
         Cart::create(['user_id' => $user->id]);
-
+    
         $token = $user->createToken('auth_token')->plainTextToken;
-
+    
         return response()->json([
             'user' => $user,
             'token' => $token

@@ -30,6 +30,23 @@ class UserController extends Controller
 
         return response()->json($user, 201);
     }
+    public function createAdmin(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $admin = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'admin', // Asigna el rol de administrador
+        ]);
+
+        return response()->json(['message' => 'Admin created successfully', 'admin' => $admin], 201);
+    }
 
     public function show(User $user)
     {

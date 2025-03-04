@@ -16,7 +16,6 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('unit_price', 8, 2);
             $table->text('special_instructions')->nullable();
-            $table->json('selected_toppings')->nullable();
             $table->timestamps();
         });
     }

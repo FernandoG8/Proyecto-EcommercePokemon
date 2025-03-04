@@ -11,6 +11,7 @@ class ProductSeeder extends Seeder
     {
         Product::create([
             'name' => 'Margherita Pizza',
+            'slug' => 'margherita-pizza',
             'description' => 'Classic pizza with tomato sauce and mozzarella cheese.',
             'price' => 8.99,
             'stock' => 50,
@@ -21,6 +22,7 @@ class ProductSeeder extends Seeder
 
         Product::create([
             'name' => 'Coke',
+            'slug' => 'coke',
             'description' => 'Refreshing cola drink.',
             'price' => 1.99,
             'stock' => 100,

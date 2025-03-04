@@ -29,7 +29,6 @@ class OrderSeeder extends Seeder
             'quantity' => 1,
             'unit_price' => 8.99,
             'special_instructions' => null,
-            'selected_toppings' => json_encode(['Extra Cheese']),
             'pizza_size_id' => 2, // Assuming this is Medium
         ]);
     }

@@ -16,7 +16,6 @@ class OrderItem extends Model
         'quantity',
         'unit_price',
         'special_instructions',
-        'selected_toppings',
         'pizza_size_id',
         'size_name'
     ];

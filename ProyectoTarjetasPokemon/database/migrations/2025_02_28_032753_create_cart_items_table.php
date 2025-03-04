@@ -14,7 +14,6 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->integer('quantity')->default(1);
             $table->text('special_instructions')->nullable();
-            $table->json('selected_toppings')->nullable();
             $table->decimal('unit_price', 8, 2);
             $table->timestamps();
         });

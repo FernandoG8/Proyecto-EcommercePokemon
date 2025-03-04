@@ -14,7 +14,6 @@ class CartItem extends Model
         'product_id', 
         'quantity', 
         'special_instructions', 
-        'selected_toppings', 
         'unit_price',
         'pizza_size_id'
     ];

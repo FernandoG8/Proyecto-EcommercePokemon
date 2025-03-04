@@ -10,16 +10,19 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    /**
+     * Listar productos con filtros y paginación.
+     */
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'toppings']);
+        $query = Product::with('category'); // Cargar la relación con categorías
 
-        // Filter by category
+        // Filtrar por categoría
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        // Search by name or description
+        // Buscar por nombre o descripción
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -28,15 +31,26 @@ class ProductController extends Controller
             });
         }
 
-        // Only active products
+        // Filtrar solo productos activos
         if ($request->has('active') && $request->active) {
             $query->where('is_active', true);
         }
 
+        // Obtener productos paginados
         $products = $query->paginate(10);
+
+        // Agregar la URL pública de la imagen a cada producto
+        $products->getCollection()->transform(function ($product) {
+            $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
+            return $product;
+        });
+
         return response()->json($products);
     }
 
+    /**
+     * Crear un nuevo producto.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -45,37 +59,41 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:2048', // Validación de la imagen
             'is_active' => 'boolean',
-            'toppings' => 'nullable|array',
-            'toppings.*' => 'exists:pizza_toppings,id',
         ]);
 
-        $data = $request->except(['image', 'toppings']);
+        $data = $request->except('image');
         $data['slug'] = Str::slug($request->name);
 
-        // Handle image upload
+        // Guardar la imagen en la carpeta storage/public/Products/images
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $data['image'] = $path;
+            $path = $request->file('image')->store('Products/images', 'public'); // Carpeta específica
+            $data['image'] = $path; // Guardar la ruta en la base de datos
         }
 
         $product = Product::create($data);
 
-        // Attach toppings if provided
-        if ($request->has('toppings')) {
-            $product->toppings()->attach($request->toppings);
-        }
-
         return response()->json(['product' => $product, 'message' => 'Product created successfully'], 201);
     }
 
+    /**
+     * Mostrar un producto específico.
+     */
     public function show(Product $product)
     {
-        $product->load(['category', 'toppings']);
+        // Cargar la relación con categorías
+        $product->load('category');
+
+        // Agregar la URL pública de la imagen
+        $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
+
         return response()->json(['product' => $product]);
     }
 
+    /**
+     * Actualizar un producto existente.
+     */
     public function update(Request $request, Product $product)
     {
         $request->validate([
@@ -86,45 +104,42 @@ class ProductController extends Controller
             'category_id' => 'sometimes|exists:categories,id',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'boolean',
-            'toppings' => 'nullable|array',
-            'toppings.*' => 'exists:pizza_toppings,id',
         ]);
 
-        $data = $request->except(['image', 'toppings']);
-        
+        $data = $request->except('image');
+
         if ($request->has('name')) {
             $data['slug'] = Str::slug($request->name);
         }
 
-        // Handle image upload
+        // Manejar la subida de imágenes
         if ($request->hasFile('image')) {
-            // Delete old image if exists
+            // Eliminar la imagen anterior si existe
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
-            
-            $path = $request->file('image')->store('products', 'public');
+
+            $path = $request->file('image')->store('Products/images', 'public');
             $data['image'] = $path;
         }
 
         $product->update($data);
 
-        // Sync toppings if provided
-        if ($request->has('toppings')) {
-            $product->toppings()->sync($request->toppings);
-        }
-
         return response()->json(['product' => $product, 'message' => 'Product updated successfully']);
     }
 
+    /**
+     * Eliminar un producto.
+     */
     public function destroy(Product $product)
     {
-        // Delete image if exists
+        // Eliminar la imagen si existe
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
 
         $product->delete();
+
         return response()->json(['message' => 'Product deleted successfully']);
     }
 }
