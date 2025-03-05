@@ -1,0 +1,32 @@
+/* Estilos para la cuadrícula de imágenes */
+.card-img-top {
+    height: 150px; /* Altura fija para las imágenes */
+    object-fit: cover; /* Ajustar la imagen sin distorsión */
+    border-radius: 10px 10px 0 0; /* Bordes redondeados en la parte superior */
+}
+
+.card {
+    border: none; /* Eliminar el borde predeterminado */
+    border-radius: 10px; /* Bordes redondeados */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Efecto de hover */
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Efecto de elevación al pasar el mouse */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra suave */
+}
+
+.card-body {
+    padding: 1rem; /* Espaciado interno */
+}
+
+.card-title {
+    font-size: 1.1rem; /* Tamaño del título */
+    font-weight: bold;
+    margin-bottom: 0.5rem; /* Espaciado inferior */
+}
+
+.card-text {
+    font-size: 0.9rem; /* Tamaño del texto */
+    color: #666; /* Color del texto */
+}
