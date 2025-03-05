@@ -16,10 +16,7 @@ class OrderController extends Controller
      * Obtiene los pedidos del usuario autenticado o todos si es administrador.
      */
     public function index(Request $request)
-    {
-        try {
-            $user = $request->user();
-            
+    {       
             if ($user->isAdmin()) {
                 $query = Order::with('user', 'items');
                 if ($request->has('status')) {

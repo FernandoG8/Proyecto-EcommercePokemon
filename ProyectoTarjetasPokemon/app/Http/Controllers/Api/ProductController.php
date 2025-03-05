@@ -98,6 +98,7 @@ class ProductController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
+
     public function store(Request $request): JsonResponse
     {
         try {
