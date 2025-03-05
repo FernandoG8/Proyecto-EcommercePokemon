@@ -55,23 +55,16 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|unique:products',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
+            'stock' => '|integer|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|max:2048', // Validación de la imagen
+            'image' => 'nullable|string|max:2048', // Validación de la imagen
             'is_active' => 'boolean',
         ]);
-
-        $data = $request->except('image');
-        $data['slug'] = Str::slug($request->name);
-
-        // Guardar la imagen en la carpeta storage/public/Products/images
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('Products/images', 'public'); // Carpeta específica
-            $data['image'] = $path; // Guardar la ruta en la base de datos
-        }
-
+        $data = $request->validated();
+        
         $product = Product::create($data);
 
         return response()->json(['product' => $product, 'message' => 'Product created successfully'], 201);

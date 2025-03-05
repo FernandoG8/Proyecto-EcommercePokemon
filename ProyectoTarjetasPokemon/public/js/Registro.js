@@ -72,12 +72,15 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
 
 // Función para registrar un nuevo usuario
 async function registerUser(name, email, password, password_confirmation) {
+   const role = 'customer';
     try {
         const data = await apiRequest('/register', 'POST', {
             name,
             email,
             password,
-            password_confirmation
+            password_confirmation,
+            role
+        
         });
         
         showAlert('Usuario registrado correctamente. Ahora puedes iniciar sesión.', 'success');
@@ -87,29 +90,6 @@ async function registerUser(name, email, password, password_confirmation) {
         throw error;
     }
 }
-
-// Función para iniciar sesión
-async function loginUser(email, password) {
-    try {
-        const data = await apiRequest('/login', 'POST', {
-            email,
-            password
-        });
-        
-        // Guardar el token en localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        showAlert('Inicio de sesión exitoso', 'success');
-        updateUserInterface();
-        return data;
-    } catch (error) {
-        showAlert(`Error al iniciar sesión: ${error.message}`);
-        throw error;
-    }
-}
-
-// Función para cerrar sesión
 async function logoutUser() {
     try {
         await apiRequest('/logout', 'POST');
@@ -124,6 +104,29 @@ async function logoutUser() {
         showAlert(`Error al cerrar sesión: ${error.message}`);
     }
 }
+
+// Función para iniciar sesión
+async function loginUser(email, password) {
+    try {
+        const data = await apiRequest('/login', 'POST', {
+            email,
+            password
+        });
+        
+        // Guardar el token en localStorage'
+        console.log(data.token);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        showAlert('Inicio de sesión exitoso', 'success');
+        updateUserInterface();
+        return data;
+    } catch (error) {
+        showAlert(`Error al iniciar sesión: ${error.message}`);
+        throw error;
+    }
+}
+
 
 // Función para obtener información del usuario actual
 async function getCurrentUser() {

@@ -13,3 +13,6 @@ Route::get('/Menu', function () {
 Route::get('/Registro', function () {
     return view('registro');
 });
+Route::get('/subirImagenes' ,function(){
+    return view('subirImagenes');
+});
