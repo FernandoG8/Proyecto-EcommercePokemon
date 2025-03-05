@@ -39,4 +39,8 @@ Route::prefix('admin')->group(function () {
         return view('admin.orders.index');
     });
 
+    Route::get('/sizes', function () {
+        return view('admin.pizza-sizes.index');
+    });
+
 });
