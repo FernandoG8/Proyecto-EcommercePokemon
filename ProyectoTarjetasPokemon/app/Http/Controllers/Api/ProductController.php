@@ -52,23 +52,27 @@ class ProductController extends Controller
      * Crear un nuevo producto.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|unique:products',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => '|integer|min:0',
-            'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|string|max:2048', // Validación de la imagen
-            'is_active' => 'boolean',
-        ]);
-        $data = $request->validated();
-        
-        $product = Product::create($data);
+{
+    // Validar la solicitud
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'slug' => 'required|string|unique:products',
+        'description' => 'required|string',
+        'price' => 'required|numeric|min:0',
+        'stock' => 'required|integer|min:0', // Asegúrate de que esta línea esté corregida
+        'category_id' => 'required|exists:categories,id',
+        'image' => 'nullable|string|max:2048',
+        'is_active' => 'boolean',
+    ]);
 
-        return response()->json(['product' => $product, 'message' => 'Product created successfully'], 201);
-    }
+    // Extraer los datos validados
+    $data = $request->only(['name', 'slug', 'description', 'price', 'stock', 'category_id', 'image', 'is_active']);
+    
+    // Crear el producto
+    $product = Product::create($data);
+
+    return response()->json(['product' => $product, 'message' => 'Product created successfully'], 201);
+}
 
     /**
      * Mostrar un producto específico.

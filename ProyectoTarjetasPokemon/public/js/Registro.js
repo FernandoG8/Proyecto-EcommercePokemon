@@ -72,7 +72,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
 
 // Función para registrar un nuevo usuario
 async function registerUser(name, email, password, password_confirmation) {
-   const role = 'customer';
+   const role = 'admin';
     try {
         const data = await apiRequest('/register', 'POST', {
             name,
