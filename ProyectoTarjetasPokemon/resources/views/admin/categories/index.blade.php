@@ -1,19 +1,20 @@
 @extends('admin.layouts')
 
 @push('scripts')
-<script src="{{ asset('js/fetchProducts.js') }}"></script>
+<!-- Scripts -->
+<script src="{{ asset('js/fetchCategories.js') }}"></script>
 @endpush
 
 @section('content')
-    <h1>Products</h1>
-    <a href="/admin/products/create" class="btn btn-primary mb-3">Add Product</a>
-    <table class="table table-bordered" id="products-table">
+    <h1>Categorias</h1>
+    <a href="/admin/categories/create" class="btn btn-primary mb-3">Agregar categoria</a>
+    <table class="table table-bordered" id="categories-table">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
+                <th>Slug</th>
+                <th>Description</th>
                 <th>Actions</th>
             </tr>
         </thead>

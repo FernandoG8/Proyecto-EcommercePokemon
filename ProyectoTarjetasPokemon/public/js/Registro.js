@@ -90,6 +90,7 @@ async function registerUser(name, email, password, password_confirmation) {
         throw error;
     }
 }
+
 async function logoutUser() {
     try {
         await apiRequest('/logout', 'POST');

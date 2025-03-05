@@ -59,7 +59,7 @@ class ProductController extends Controller
             'slug' => 'required|string|unique:products',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0', // Asegúrate de que esta línea esté corregida
+            'stock' => 'sometimes|integer|min:0', // Asegúrate de que esta línea esté corregida
             'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|string|max:2048',
             'is_active' => 'boolean',
