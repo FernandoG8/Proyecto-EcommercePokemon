@@ -16,7 +16,10 @@ class OrderController extends Controller
      * Obtiene los pedidos del usuario autenticado o todos si es administrador.
      */
     public function index(Request $request)
-    {       
+    {
+        try {
+            $user = $request->user();
+
             if ($user->isAdmin()) {
                 $query = Order::with('user', 'items');
                 if ($request->has('status')) {
@@ -26,7 +29,7 @@ class OrderController extends Controller
             } else {
                 $orders = $user->orders()->with('items')->latest()->paginate(10);
             }
-            
+
             return response()->json($orders);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error al obtener los pedidos.'], 500);
@@ -48,7 +51,7 @@ class OrderController extends Controller
         try {
             $user = $request->user();
             $cart = $user->cart;
-            
+
             if (!$cart || $cart->items->isEmpty()) {
                 return response()->json(['message' => 'El carrito está vacío.'], 422);
             }
@@ -99,7 +102,7 @@ class OrderController extends Controller
             if (!$user->isAdmin() && $order->user_id !== $user->id) {
                 return response()->json(['message' => 'No autorizado.'], 403);
             }
-            
+
             $order->load('items', 'user');
             return response()->json(['order' => $order]);
         } catch (Exception $e) {
