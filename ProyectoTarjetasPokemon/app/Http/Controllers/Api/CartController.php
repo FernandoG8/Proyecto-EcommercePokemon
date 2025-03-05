@@ -6,97 +6,95 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\PizzaTopping;
 use App\Models\PizzaSize;
 use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
+    /**
+     * Obtiene el carrito del usuario autenticado.
+     */
     public function index(Request $request)
     {
-        $cart = $request->user()->cart;
-        
-        if (!$cart) {
-            $cart = Cart::create(['user_id' => $request->user()->id]);
+        try {
+            $cart = $request->user()->cart;
+            
+            if (!$cart) {
+                $cart = Cart::create(['user_id' => $request->user()->id]);
+            }
+            
+            $cart->load('items.product', 'items.size');
+            
+            return response()->json([
+                'cart' => $cart,
+                'items' => $cart->items,
+                'total' => $cart->getTotal()
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al obtener el carrito.'], 500);
         }
-        
-        $cart->load('items.product', 'items.size');
-        
-        return response()->json([
-            'cart' => $cart,
-            'items' => $cart->items,
-            'total' => $cart->getTotal()
-        ]);
     }
 
+    /**
+     * Agrega un producto al carrito del usuario.
+     */
     public function addItem(Request $request)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'special_instructions' => 'nullable|string',
-            'selected_toppings' => 'nullable|array',
-            'selected_toppings.*' => 'exists:pizza_toppings,id',
             'pizza_size_id' => 'nullable|exists:pizza_sizes,id',
         ]);
 
-        $user = $request->user();
-        $cart = $user->cart;
-        
-        if (!$cart) {
-            $cart = Cart::create(['user_id' => $user->id]);
-        }
-
-        $product = Product::findOrFail($request->product_id);
-        
-        // Check if product is in stock
-        if ($product->stock < $request->quantity) {
-            return response()->json(['message' => 'Not enough stock available'], 422);
-        }
-
-        // Calculate price with toppings
-        $unitPrice = $product->price;
-        $selectedToppings = [];
-        
-        if ($request->has('selected_toppings') && count($request->selected_toppings) > 0) {
-            $toppings = PizzaTopping::whereIn('id', $request->selected_toppings)->get();
+        try {
+            DB::beginTransaction();
             
-            foreach ($toppings as $topping) {
-                $unitPrice += $topping->price;
-                $selectedToppings[] = [
-                    'id' => $topping->id,
-                    'name' => $topping->name,
-                    'price' => $topping->price
-                ];
+            $user = $request->user();
+            $cart = $user->cart ?? Cart::create(['user_id' => $user->id]);
+            
+            $product = Product::findOrFail($request->product_id);
+            
+            if ($product->stock < $request->quantity) {
+                return response()->json(['error' => 'Stock insuficiente.'], 422);
             }
+
+            $unitPrice = $product->price;
+            
+            if ($request->has('pizza_size_id') && $request->pizza_size_id) {
+                $size = PizzaSize::findOrFail($request->pizza_size_id);
+                $unitPrice *= $size->price_multiplier;
+            }
+
+            $cartItem = CartItem::create([
+                'cart_id' => $cart->id,
+                'product_id' => $product->id,
+                'quantity' => $request->quantity,
+                'special_instructions' => $request->special_instructions,
+                'unit_price' => $unitPrice,
+                'pizza_size_id' => $request->pizza_size_id,
+            ]);
+
+            $product->decrement('stock', $request->quantity);
+            
+            DB::commit();
+            
+            return response()->json(['message' => 'Producto agregado al carrito.', 'cart_item' => $cartItem->load('product', 'size')], 201);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al agregar el producto al carrito.'], 500);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Ocurrió un error inesperado.'], 500);
         }
-        
-        // Apply size multiplier if selected
-        if ($request->has('pizza_size_id') && $request->pizza_size_id) {
-            $size = PizzaSize::findOrFail($request->pizza_size_id);
-            $unitPrice *= $size->price_multiplier;
-        }
-
-        // Create cart item
-        $cartItem = CartItem::create([
-            'cart_id' => $cart->id,
-            'product_id' => $product->id,
-            'quantity' => $request->quantity,
-            'special_instructions' => $request->special_instructions,
-            'selected_toppings' => $selectedToppings,
-            'unit_price' => $unitPrice,
-            'pizza_size_id' => $request->pizza_size_id,
-        ]);
-
-        // Reduce stock
-        $product->decrement('stock', $request->quantity);
-
-        return response()->json([
-            'message' => 'Item added to cart',
-            'cart_item' => $cartItem->load('product', 'size')
-        ], 201);
     }
 
+    /**
+     * Actualiza un producto en el carrito.
+     */
     public function updateItem(Request $request, CartItem $cartItem)
     {
         $request->validate([
@@ -104,68 +102,70 @@ class CartController extends Controller
             'special_instructions' => 'nullable|string',
         ]);
 
-        // Check if cart item belongs to user
-        if ($cartItem->cart->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $product = $cartItem->product;
-        $oldQuantity = $cartItem->quantity;
-        $newQuantity = $request->quantity ?? $oldQuantity;
-
-        // Check if product is in stock for increased quantity
-        if ($newQuantity > $oldQuantity) {
-            $additionalQuantity = $newQuantity - $oldQuantity;
-            if ($product->stock < $additionalQuantity) {
-                return response()->json(['message' => 'Not enough stock available'], 422);
+        try {
+            if ($cartItem->cart->user_id !== $request->user()->id) {
+                return response()->json(['error' => 'No autorizado.'], 403);
             }
-            
-            // Reduce stock for additional quantity
-            $product->decrement('stock', $additionalQuantity);
-        } elseif ($newQuantity < $oldQuantity) {
-            // Return stock for decreased quantity
-            $returnQuantity = $oldQuantity - $newQuantity;
-            $product->increment('stock', $returnQuantity);
+
+            $product = $cartItem->product;
+            $oldQuantity = $cartItem->quantity;
+            $newQuantity = $request->quantity ?? $oldQuantity;
+
+            if ($newQuantity > $oldQuantity && $product->stock < ($newQuantity - $oldQuantity)) {
+                return response()->json(['error' => 'Stock insuficiente.'], 422);
+            }
+
+            if ($newQuantity > $oldQuantity) {
+                $product->decrement('stock', $newQuantity - $oldQuantity);
+            } elseif ($newQuantity < $oldQuantity) {
+                $product->increment('stock', $oldQuantity - $newQuantity);
+            }
+
+            $cartItem->update($request->only(['quantity', 'special_instructions']));
+
+            return response()->json(['message' => 'Producto actualizado.', 'cart_item' => $cartItem->load('product', 'size')]);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al actualizar el producto.'], 500);
         }
-
-        $cartItem->update($request->only(['quantity', 'special_instructions']));
-
-        return response()->json([
-            'message' => 'Cart item updated',
-            'cart_item' => $cartItem->load('product', 'size')
-        ]);
     }
 
+    /**
+     * Elimina un producto del carrito.
+     */
     public function removeItem(Request $request, CartItem $cartItem)
     {
-        // Check if cart item belongs to user
-        if ($cartItem->cart->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        try {
+            if ($cartItem->cart->user_id !== $request->user()->id) {
+                return response()->json(['error' => 'No autorizado.'], 403);
+            }
+
+            $cartItem->product->increment('stock', $cartItem->quantity);
+            $cartItem->delete();
+
+            return response()->json(['message' => 'Producto eliminado del carrito.']);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al eliminar el producto.'], 500);
         }
-
-        // Return stock
-        $product = $cartItem->product;
-        $product->increment('stock', $cartItem->quantity);
-
-        $cartItem->delete();
-
-        return response()->json(['message' => 'Item removed from cart']);
     }
 
+    /**
+     * Vacía el carrito del usuario.
+     */
     public function clear(Request $request)
     {
-        $cart = $request->user()->cart;
-        
-        if ($cart) {
-            // Return stock for all items
-            foreach ($cart->items as $item) {
-                $item->product->increment('stock', $item->quantity);
-            }
+        try {
+            $cart = $request->user()->cart;
             
-            // Delete all items
-            $cart->items()->delete();
-        }
+            if ($cart) {
+                foreach ($cart->items as $item) {
+                    $item->product->increment('stock', $item->quantity);
+                }
+                $cart->items()->delete();
+            }
 
-        return response()->json(['message' => 'Cart cleared']);
+            return response()->json(['message' => 'Carrito vaciado correctamente.']);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al vaciar el carrito.'], 500);
+        }
     }
 }

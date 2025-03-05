@@ -8,9 +8,18 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Exception;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
+    /**
+     * Registra un nuevo usuario y le asigna un carrito por defecto.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register(Request $request)
     {
         $request->validate([
@@ -19,29 +28,50 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'address' => 'nullable|string',
             'phone' => 'nullable|string',
-            'role' => 'required|string|in:admin,customer', // Asegúrate de validar el rol
+            'role' => 'nullable|string|in:admin,customer',
         ]);
-    
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'address' => $request->address,
-            'phone' => $request->phone,
-            'role' => $request->role, // Asigna el rol
-        ]);
-    
-        // Crear un carrito para el usuario
-        Cart::create(['user_id' => $user->id]);
-    
-        $token = $user->createToken('auth_token')->plainTextToken;
-    
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ], 201);
+
+        try {
+            DB::beginTransaction();
+            
+            $role = $request->role ?? 'customer';
+            
+            // Crear usuario
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'address' => $request->address,
+                'phone' => $request->phone,
+                'role' => $role,
+            ]);
+
+            // Crear carrito para el usuario
+            Cart::create(['user_id' => $user->id]);
+            
+            DB::commit();
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'user' => $user,
+                'token' => $token
+            ], 201);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al registrar el usuario. Intente nuevamente.'], 500);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Ocurrió un error inesperado.'], 500);
+        }
     }
 
+    /**
+     * Inicia sesión de usuario y genera un token de autenticación.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -53,35 +83,64 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Las credenciales son incorrectas.'],
+                'error' => ['Credenciales inválidas.']
             ]);
         }
 
-        // Check if user has a cart, if not create one
-        if (!$user->cart) {
-            Cart::create(['user_id' => $user->id]);
+        try {
+            // Verificar si el usuario tiene un carrito, si no, crearlo
+            if (!$user->cart) {
+                Cart::create(['user_id' => $user->id]);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'user' => $user,
+                'token' => $token
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Ocurrió un error en el inicio de sesión.'], 500);
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ]);
     }
 
+    /**
+     * Cierra la sesión del usuario actual.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json(['message' => 'Logged out successfully']);
+        try {
+            $request->user()->currentAccessToken()->delete();
+            return response()->json(['message' => 'Sesión cerrada correctamente']);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al cerrar sesión.'], 500);
+        }
     }
 
+    /**
+     * Obtiene los datos del usuario autenticado.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        try {
+            return response()->json($request->user());
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al obtener el usuario.'], 500);
+        }
     }
 
+    /**
+     * Actualiza el perfil del usuario autenticado.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateProfile(Request $request)
     {
         $request->validate([
@@ -90,9 +149,13 @@ class AuthController extends Controller
             'phone' => 'sometimes|string',
         ]);
 
-        $user = $request->user();
-        $user->update($request->only(['name', 'address', 'phone']));
+        try {
+            $user = $request->user();
+            $user->update($request->only(['name', 'address', 'phone']));
 
-        return response()->json(['user' => $user, 'message' => 'Perfil actualizado correctamente']);
+            return response()->json(['user' => $user, 'message' => 'Perfil actualizado correctamente']);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'No se pudo actualizar el perfil.'], 500);
+        }
     }
 }

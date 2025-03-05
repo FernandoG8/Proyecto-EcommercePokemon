@@ -91,25 +91,7 @@ async function registerUserCustomer(name, email, password, password_confirmation
         throw error;
     }
 }
-async function registerUserAdmin(name, email, password, password_confirmation) {
-    const role = 'admin';
-     try {
-         const data = await apiRequest('/register', 'POST', {
-             name,
-             email,
-             password,
-             password_confirmation,
-             role
-         
-         });
-         
-         showAlert('Usuario registrado correctamente. Ahora puedes iniciar sesión.', 'success');
-         return data;
-     } catch (error) {
-         showAlert(`Error al registrar: ${error.message}`);
-         throw error;
-     }
- }
+
 async function logoutUser() {
     try {
         await apiRequest('/logout', 'POST');

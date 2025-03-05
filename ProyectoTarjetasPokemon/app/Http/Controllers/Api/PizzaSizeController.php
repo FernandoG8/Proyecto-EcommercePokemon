@@ -5,15 +5,27 @@ namespace App\Http\Controllers\Api;
 use App\Models\PizzaSize;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Database\QueryException;
 
 class PizzaSizeController extends Controller
 {
+    /**
+     * Obtiene los tamaños de pizza activos.
+     */
     public function index()
     {
-        $sizes = PizzaSize::where('is_active', true)->get();
-        return response()->json(['sizes' => $sizes]);
+        try {
+            $sizes = PizzaSize::where('is_active', true)->get();
+            return response()->json(['sizes' => $sizes]);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al obtener los tamaños de pizza.'], 500);
+        }
     }
 
+    /**
+     * Crea un nuevo tamaño de pizza.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -22,16 +34,29 @@ class PizzaSizeController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $size = PizzaSize::create($request->all());
-
-        return response()->json(['size' => $size, 'message' => 'Size created successfully'], 201);
+        try {
+            $size = PizzaSize::create($request->all());
+            return response()->json(['size' => $size, 'message' => 'Tamaño de pizza creado exitosamente'], 201);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Error al crear el tamaño de pizza.'], 500);
+        }
     }
 
+    /**
+     * Muestra un tamaño de pizza específico.
+     */
     public function show(PizzaSize $pizzaSize)
     {
-        return response()->json(['size' => $pizzaSize]);
+        try {
+            return response()->json(['size' => $pizzaSize]);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al obtener el tamaño de pizza.'], 500);
+        }
     }
 
+    /**
+     * Actualiza un tamaño de pizza existente.
+     */
     public function update(Request $request, PizzaSize $pizzaSize)
     {
         $request->validate([
@@ -40,14 +65,24 @@ class PizzaSizeController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $pizzaSize->update($request->all());
-
-        return response()->json(['size' => $pizzaSize, 'message' => 'Size updated successfully']);
+        try {
+            $pizzaSize->update($request->all());
+            return response()->json(['size' => $pizzaSize, 'message' => 'Tamaño de pizza actualizado exitosamente']);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Error al actualizar el tamaño de pizza.'], 500);
+        }
     }
 
+    /**
+     * Elimina un tamaño de pizza.
+     */
     public function destroy(PizzaSize $pizzaSize)
     {
-        $pizzaSize->delete();
-        return response()->json(['message' => 'Size deleted successfully']);
+        try {
+            $pizzaSize->delete();
+            return response()->json(['message' => 'Tamaño de pizza eliminado exitosamente']);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Error al eliminar el tamaño de pizza.'], 500);
+        }
     }
 }

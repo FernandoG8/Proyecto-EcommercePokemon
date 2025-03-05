@@ -7,136 +7,202 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
+use App\Http\Resources\ProductResource;
+use Illuminate\Support\Facades\Validator;
+
+
 
 class ProductController extends Controller
 {
     /**
-     * Listar productos con filtros y paginación.
+     * Obtiene una lista paginada de productos con filtros opcionales.
+     *
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $query = Product::with('category'); // Cargar la relación con categorías
+        try {
+            // 1. Validación de parámetros
+            $validator = Validator::make($request->all(), [
+                'category_slug' => 'sometimes|string|exists:categories,slug',
+                'search' => 'sometimes|string|max:255',
+                'active' => 'sometimes|boolean',
+                'per_page' => 'sometimes|integer|min:1|max:100'
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+    
+            $validated = $validator->validated();
+    
+            // 2. Construcción de query
+            $query = Product::with('category')
+            //validated confirma qu sea category_slug
+                ->when(isset($validated['category_slug']), function ($q) use ($validated) {
+                    // Esto funciona con ?category_slug="nombredelSlug"
+                    $q->whereHas('category', function ($subQuery) use ($validated) {
+                        $subQuery->where('slug', $validated['category_slug']);
+                    });
+                })
 
-        // Filtrar por categoría
-        if ($request->has('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
+                ->when(isset($validated['search']), function ($q) use ($validated) {
+                  //funciona pasando   ?search= "coincidencia"
+                    $q->where(function ($subQuery) use ($validated) {
+                        $subQuery->where('name', 'like', "%{$validated['search']}%")
+                                ->orWhere('description', 'like', "%{$validated['search']}%");
+                    });
+                })
+                ->when(isset($validated['active']), function ($q) use ($validated) {
+                    // filtra los prodcutos activos con ?active=true
+                    $q->where('is_active', $validated['active']);
+                });
+    
+            // 3. Paginación configurable
+            //validamos con ?per_page="cantidad de productos traidos"
+            $perPage = $validated['per_page'] ?? 10;
+            $products = $query->paginate($perPage);
+    
+             // 4. Transformación usando API Resources
+        return response()->json([
+            'data' => ProductResource::collection($products),
+            'message' => 'Products retrieved successfully',
+            'meta' => [
+                'filters' => $validated,
+                'pagination' => [
+                    'current_page' => $products->currentPage(),
+                    'per_page' => $products->perPage(),
+                    'total' => $products->total(),
+                    'last_page' => $products->lastPage()
+                ]
+            ]
+        ],200, [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        // Buscar por nombre o descripción
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
+    } catch (\Exception $e) {
+        Log::error('Product fetch error', ['exception' => $e]);
+        return response()->json([
+            'message' => 'Error retrieving products'
+        ], 500);
+    }
+    }
 
-        // Filtrar solo productos activos
-        if ($request->has('active') && $request->active) {
-            $query->where('is_active', true);
-        }
+    /**
+     * Crea un nuevo producto.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
 
-        // Obtener productos paginados
-        $products = $query->paginate(10);
+    public function store(Request $request): JsonResponse
+    {
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'required|string',
+                'price' => 'required|numeric|min:0',
+                'stock' => 'required|integer|min:0',
+                'category_id' => 'required|exists:categories,id',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'is_active' => 'boolean',
+            ]);
 
-        // Agregar la URL pública de la imagen a cada producto
-        $products->getCollection()->transform(function ($product) {
+            $validatedData['slug'] = Str::slug($validatedData['name']);
+            $validatedData['is_active'] = $request->has('is_active') ? $request->boolean('is_active') : true;
+
+            if ($request->hasFile('image')) {
+                $validatedData['image'] = $request->file('image')->store('products/images', 'public');
+            }
+
+            $product = Product::create($validatedData);
             $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
-            return $product;
-        });
 
-        return response()->json($products);
+            return response()->json(['product' => $product, 'message' => 'Product created successfully'], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error creating product', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
-     * Crear un nuevo producto.
+     * Muestra un producto específico.
+     *
+     * @param Product $product
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function show(Product $product): JsonResponse
     {
-        // Validar la solicitud
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|unique:products',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'sometimes|integer|min:0', // Asegúrate de que esta línea esté corregida
-            'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|string|max:2048',
-            'is_active' => 'boolean',
-        ]);
-
-        // Extraer los datos validados
-        $data = $request->only(['name', 'slug', 'description', 'price', 'stock', 'category_id', 'image', 'is_active']);
-
-        // Crear el producto
-        $product = Product::create($data);
-
-        return response()->json(['product' => $product, 'message' => 'Product created successfully'], 201);
-    }
-
-    /**
-     * Mostrar un producto específico.
-     */
-    public function show(Product $product)
-    {
-        // Cargar la relación con categorías
         $product->load('category');
-
-        // Agregar la URL pública de la imagen
         $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
 
         return response()->json(['product' => $product]);
     }
 
     /**
-     * Actualizar un producto existente.
+     * Actualiza un producto existente.
+     *
+     * @param Request $request
+     * @param Product $product
+     * @return JsonResponse
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product): JsonResponse
     {
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'price' => 'sometimes|numeric|min:0',
-            'stock' => 'sometimes|integer|min:0',
-            'category_id' => 'sometimes|exists:categories,id',
-            'image' => 'nullable|image|max:2048',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'description' => 'sometimes|string',
+                'price' => 'sometimes|numeric|min:0',
+                'stock' => 'sometimes|integer|min:0',
+                'category_id' => 'sometimes|exists:categories,id',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'is_active' => 'boolean',
+            ]);
 
-        $data = $request->except('image');
-
-        if ($request->has('name')) {
-            $data['slug'] = Str::slug($request->name);
-        }
-
-        // Manejar la subida de imágenes
-        if ($request->hasFile('image')) {
-            // Eliminar la imagen anterior si existe
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            if ($request->has('name')) {
+                $validatedData['slug'] = Str::slug($request->name);
             }
 
-            $path = $request->file('image')->store('Products/images', 'public');
-            $data['image'] = $path;
+            if ($request->hasFile('image')) {
+                if ($product->image) {
+                    Storage::disk('public')->delete($product->image);
+                }
+                $validatedData['image'] = $request->file('image')->store('products/images', 'public');
+            }
+
+            $product->update($validatedData);
+            $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
+
+            return response()->json(['product' => $product, 'message' => 'Product updated successfully']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error updating product', 'error' => $e->getMessage()], 500);
         }
-
-        $product->update($data);
-
-        return response()->json(['product' => $product, 'message' => 'Product updated successfully']);
     }
 
     /**
-     * Eliminar un producto.
+     * Elimina un producto.
+     *
+     * @param Product $product
+     * @return JsonResponse
      */
-    public function destroy(Product $product)
+    public function destroy(Product $product): JsonResponse
     {
-        // Eliminar la imagen si existe
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        try {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $product->delete();
+
+            return response()->json(['message' => 'Product deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error deleting product', 'error' => $e->getMessage()], 500);
         }
-
-        $product->delete();
-
-        return response()->json(['message' => 'Product deleted successfully']);
     }
 }
