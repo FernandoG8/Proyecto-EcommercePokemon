@@ -1,68 +1,336 @@
 
-
-    // Datos de las pizzas
-    const pizzas = [
-        { name: "Queso", prices: { chica: 60, mediana: 130, grande: 160 }, description: "Deliciosa pizza con extra quesito derretido, perfecta para los amantes del queso." },
-        { name: "Hawaiana", prices: { chica: 70, mediana: 140, grande: 160 }, description: "Jugoso jamón, dulce piña y mucho quesito. ¡Una combinación tropical!" },
-        { name: "Choriqueso", prices: { chica: 70, mediana: 140, grande: 170 }, description: "Chorizo asadito y extra quesito derretido. ¡Un sabor intenso!" },
-        { name: "Doggo", prices: { chica: 70, mediana: 140, grande: 170 }, description: "Salchicha, tocino crujiente, tomate, jalapeño, cebolla, catsup, mostaza y quesito. ¡Explosión de sabores!" },
-        { name: "Chicago", prices: { chica: 70, mediana: 145, grande: 185 }, description: "Salchicha, chorizo, salami y mucho quesito. ¡Para los más atrevidos!" },
-        { name: "Mister Pep", prices: { chica: 70, mediana: 145, grande: 190 }, description: "Peperoni, champiñones frescos y quesito derretido. ¡Un clásico irresistible!" },
-        { name: "Jarocha", prices: { chica: 70, mediana: 145, grande: 190 }, description: "Atún, champiñones, cebolla, jalapeño, tomate y quesito. ¡Un sabor único!" },
-        { name: "Napolitana", prices: { chica: 70, mediana: 145, grande: 190 }, description: "Jamón, salchicha, tocino, pimiento morrón, champiñones y quesito. ¡Una fiesta de sabores!" },
-        { name: "Vegetariana", prices: { chica: 70, mediana: 145, grande: 185 }, description: "Piña, champiñones, aceitunas, pimiento, cebolla, jitomate, elote y quesito. ¡Saludable y deliciosa!" },
-        { name: "Meat", prices: { chica: 70, mediana: 145, grande: 190 }, description: "Jamón, salchicha, tocino, chorizo y quesito. ¡Para los amantes de la carne!" },
-        { name: "Peperoni", prices: { chica: 70, mediana: 145, grande: 190 }, description: "Peperoni picante y mucho quesito. ¡Un clásico que nunca falla!" },
-        { name: "Mexicana", prices: { chica: 70, mediana: 150, grande: 190 }, description: "Jamón, frijoles, chorizo, elote, cebolla, jitomate, jalapeños, aguacate y quesito. ¡Un sabor bien mexicano!" },
-        { name: "Al Pastor", prices: { chica: 70, mediana: 150, grande: 190 }, description: "Carne al pastor, pimiento, cebolla, piña, jalapeño y quesito. ¡Un toque de sabor único!" },
-        { name: "Maximo", prices: { chica: 75, mediana: 150, grande: 195 }, description: "Jamón, pepperoni, pimiento, cebolla, champiñones y quesito. ¡El máximo sabor en cada bocado!" },
-        { name: "Chocking", prices: { chica: 75, mediana: 160, grande: 199 }, description: "Jamón, salchicha, chorizo, champiñones, cebolla, aceitunas, pimiento y quesito. ¡Te dejará sin palabras!" }
-    ];
-
-    // Datos de hotdogs, hamburguesas y papas
-    const hotdogs = [
-        { name: "Clásico", price: 59, description: "Salchicha super jumbo envuelta en tocino, con tomate, cebolla, chile en vinagre y un toque de mostaza y catsup. ¡Un clásico que nunca pasa de moda!" },
-        { name: "Peperoni", price: 76, description: "Salchicha super jumbo envuelta en tocino, con peperoni y queso mozzarella derretido. ¡Ideal para los amantes del queso!" },
-        { name: "BBQ", price: 76, description: "Salchicha super jumbo con cebolla caramelizada, salsa BBQ y queso mozzarella. ¡Un sabor ahumado y dulce!" },
-        { name: "El Gobernante", price: 76, description: "Salchicha super jumbo envuelta en tocino, con cebolla caramelizada, aguacate y queso mozzarella. ¡Un manjar digno de un rey!" },
-        { name: "Tamtoc", price: 69, description: "Salchicha super jumbo con piña asada, cebolla caramelizada y rodajas de jalapeño natural. ¡Un toque tropical y picante!" }
-    ];
-
-    const hamburguesas = [
-        { name: "Clásica", price: 85, description: "Hamburguesa de arracherra con tocino crujiente, queso derretido, tomate, lechuga y cebolla. ¡Un clásico que nunca falla!" },
-        { name: "Hawaiana", price: 85, description: "Hamburguesa de arracherra con tocino, piña, jamón, tomate, lechuga y cebolla. ¡Un toque dulce y salado!" },
-        { name: "Mexicana", price: 85, description: "Hamburguesa de arracherra con tocino, piña, jamón, tomate, lechuga y cebolla. ¡Un sabor bien mexicano!" }
-    ];
-
-    const papas = [
-        { name: "A la Francesa", price: 45, description: "Papas a la francesa crujientes y doradas. ¡Perfectas para acompañar cualquier platillo!" },
-        { name: "Gajo", price: 50, description: "Papas gajo bien sazonadas y horneadas. ¡Un toque rústico y delicioso!" }
-    ];
-
-    // Carrito
+document.addEventListener("DOMContentLoaded", function () {
+    
     let cart = [];
-
-    // Variable para almacenar la pizza seleccionada
+    const userId = localStorage.getItem('userId');
     let selectedPizza = null;
 
-    // Función para abrir el modal de selección de tamaño
-    window.openSizeModal = function (pizza) {
+    const closeCartButton = document.getElementById("closeCart");
+    closeCartButton.addEventListener("click", toggleCart);
+
+
+
+    
+    // ----------------------
+    // FUNCIONES PRINCIPALES
+    // ----------------------
+
+    // Mostrar/ocultar el carrito
+   function toggleCart() {
+        const cartSidebar = document.getElementById("cartSidebar");
+        if (!cartSidebar) {
+            console.error('Cart sidebar not found');
+            return;
+        }
+        cartSidebar.classList.toggle("active");
+    }
+
+    function setupEventListeners() {
+        // Cart button
+        const cartButton = document.getElementById("carButton");
+        if (cartButton) {
+            // Remove previous listeners if any
+            const newCartButton = cartButton.cloneNode(true);
+            cartButton.parentNode.replaceChild(newCartButton, cartButton);
+            
+            // Add single click handler that both loads and toggles
+            newCartButton.addEventListener("click", function() {
+                loadCart();
+                toggleCart();
+            });
+        }
+
+        // Close cart button
+        const closeCartButton = document.getElementById("closeCart");
+        if (closeCartButton) {
+            closeCartButton.addEventListener("click", toggleCart);
+        }
+
+        // Clear cart button
+        const clearCartButton = document.getElementById("clearCartButton");
+        if (clearCartButton) {
+            clearCartButton.addEventListener("click", clearCart);
+        }
+
+        // Confirm size button
+        const confirmSizeButton = document.getElementById("confirmSizeButton");
+        if (confirmSizeButton) {
+            confirmSizeButton.addEventListener("click", confirmSize);
+        }
+    }
+
+    function saveCart() {
+        if (userId) {
+            localStorage.setItem(`cart_${userId}`, JSON.stringify(cart));
+        }
+    }
+
+    async function loadCart() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            updateCartUI([]);
+            return;
+        }
+    
+        try {
+            const response = await fetch('/api/v1/cart', {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Error al cargar el carrito');
+            }
+    
+            const data = await response.json();
+            console.log('Cart data:', data); // Para debugging
+            updateCartUI(data.items, data.total);
+        } catch (error) {
+            console.error('Error loading cart:', error);
+            updateCartUI([], 0);
+        }
+    }
+
+    function updateCartUI(items, total) {
+        const cartItems = document.getElementById("cartItems");
+        const cartTotal = document.getElementById("cartTotal");
+        const cartCount = document.getElementById("cartCount");
+        
+        if (!cartItems || !cartTotal || !cartCount) {
+            console.error('Cart elements not found');
+            return;
+        }
+    
+        cartItems.innerHTML = "";
+    
+        if (Array.isArray(items) && items.length > 0) {
+            items.forEach(item => {
+                const sizeName = item.size ? ` (${item.size.name})` : '';
+                
+                cartItems.innerHTML += `
+                    <div class="cart-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="fw-bold">${item.product.name}${sizeName}</span>
+                                <br>
+                                <small>Cantidad: ${item.quantity}</small>
+                            </div>
+                            <div class="text-end">
+                                <div>$${item.unit_price.toFixed(2)}</div>
+                                <div class="text-muted">Subtotal: $${item.subtotal.toFixed(2)}</div>
+                                <button class="btn btn-danger btn-sm mt-1" 
+                                    onclick="removeFromCart(${item.id})">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            cartItems.innerHTML = '<p class="text-center my-3">Tu carrito está vacío</p>';
+        }
+    
+        cartTotal.textContent = `$${total ? total.toFixed(2) : '0.00'}`;
+        cartCount.textContent = items ? items.length : 0;
+    }
+
+
+
+    // Abrir el modal de selección de tamaño (usado en el HTML dinámico)
+    window.openSizeModal = function(pizza) {
+        console.log('Pizza data:', pizza); // Para debugging
         selectedPizza = pizza;
+        const sizeSelect = document.getElementById('sizeSelect');
+        const priceDisplay = document.getElementById('priceDisplay');
+        
+        // Limpiar opciones anteriores
+        sizeSelect.innerHTML = '';
+        
+        // Agregar opciones de tamaño
+        pizza.sizes.forEach(size => {
+            const option = document.createElement('option');
+            option.value = size.id;
+            option.textContent = size.name;
+            option.dataset.multiplier = size.price_multiplier;
+            sizeSelect.appendChild(option);
+        });
+        
+        // Mostrar precio inicial con el primer tamaño
+        if (pizza.sizes.length > 0) {
+            const initialMultiplier = parseFloat(pizza.sizes[0].price_multiplier);
+            const initialPrice = pizza.basePrice * initialMultiplier;
+            priceDisplay.textContent = `Precio: $${initialPrice.toFixed(2)}`;
+        }
+    
+        // Agregar evento change al select
+        sizeSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const multiplier = parseFloat(selectedOption.dataset.multiplier);
+            const finalPrice = selectedPizza.basePrice * multiplier;
+            priceDisplay.textContent = `Precio: $${finalPrice.toFixed(2)}`;
+        });
+        
         const modal = new bootstrap.Modal(document.getElementById('sizeModal'));
         modal.show();
     };
 
-    // Función para confirmar el tamaño seleccionado
-    window.confirmSize = function () {
-        const size = document.getElementById('sizeSelect').value;
-        const price = selectedPizza.prices[size];
-        cart.push({ name: `${selectedPizza.name} (${size})`, price });
-        updateCart();
+
+
+    async function addToCartWithSize(name, price, productId, sizeId) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Por favor inicia sesión para agregar productos al carrito');
+            return;
+        }
+    
+        try {
+            const response = await fetch('/api/v1/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: 1,
+                    unit_price: price,
+                    pizza_size_id: sizeId
+                })
+            });
+    
+            if (!response.ok) {
+                throw new Error('Error al agregar al carrito');
+            }
+    
+            await loadCart(); // Recargar el carrito
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al agregar al carrito');
+        }
+    }
+
+    
+    // Confirmar el tamaño (sin onclick en HTML; lo enganchamos abajo con un eventListener)
+    function confirmSize() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Por favor inicia sesión para agregar productos al carrito');
+            return;
+        }
+    
+        const sizeSelect = document.getElementById('sizeSelect');
+        const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
+        const multiplier = parseFloat(selectedOption.dataset.multiplier);
+        const finalPrice = selectedPizza.basePrice * multiplier;
+        const sizeId = parseInt(selectedOption.value);
+    
+        // Llamar a addToCart con el tamaño seleccionado
+        addToCartWithSize(selectedPizza.name, finalPrice, selectedPizza.id, sizeId);
+        
         const modal = bootstrap.Modal.getInstance(document.getElementById('sizeModal'));
         modal.hide();
+    }
+
+    function updatePriceDisplay() {
+        const sizeSelect = document.getElementById('sizeSelect');
+        const priceDisplay = document.getElementById('priceDisplay');
+        const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
+        const multiplier = parseFloat(selectedOption.dataset.multiplier);
+        const finalPrice = selectedPizza.basePrice * multiplier;
+        priceDisplay.textContent = `Precio: $${finalPrice.toFixed(2)}`;
+    }
+
+    // Agregar al carrito para hotdogs, hamburguesas, papas (usado en el HTML dinámico)
+    window.addToCart = async function(name, price, productId) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Por favor inicia sesión para agregar productos al carrito');
+            return;
+        }
+    
+        try {
+            const response = await fetch('/api/v1/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: 1,
+                    unit_price: price
+                })
+            });
+    
+            if (!response.ok) {
+                throw new Error('Error al agregar al carrito');
+            }
+    
+            await loadCart(); // Recargar el carrito
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al agregar al carrito');
+        }
     };
 
-    // Función para actualizar el carrito
+
+    // Eliminar del carrito (usado en el HTML dinámico)
+    window.removeFromCart = async function(cartItemId) {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+    
+        try {
+            const response = await fetch(`/api/v1/cart/${cartItemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Error al eliminar del carrito');
+            }
+    
+            await loadCart(); // Recargar el carrito
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al eliminar del carrito');
+        }
+    };
+    
+
+    // Vaciar el carrito (sin onclick en HTML; lo enganchamos abajo con un eventListener)
+    async function clearCart() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+    
+        try {
+            const response = await fetch('/api/v1/cart', {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Error al vaciar el carrito');
+            }
+    
+            await loadCart(); // Recargar el carrito
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al vaciar el carrito');
+        }
+    }
+
+    // Actualizar el carrito
     function updateCart() {
         const cartItems = document.getElementById("cartItems");
         const cartTotal = document.getElementById("cartTotal");
@@ -75,6 +343,7 @@
                 <div class="cart-item">
                     <span>${item.name}</span>
                     <span>$${item.price}</span>
+                    <!-- removeFromCart se llama dinámicamente, por eso sigue en window -->
                     <button class="btn btn-danger btn-sm" onclick="removeFromCart(${index})">Eliminar</button>
                 </div>
             `;
@@ -85,40 +354,66 @@
         cartCount.textContent = cart.length;
     }
 
-    // Función para eliminar del carrito
-    window.removeFromCart = function (index) {
-        cart.splice(index, 1);
-        updateCart();
-    };
+    // --------------------------
+    // GENERAR MENÚS DINÁMICOS
+    // --------------------------
 
-    // Función para vaciar el carrito
-    window.clearCart = function () {
-        cart = [];
-        updateCart();
-    };
+    // Función para obtener los productos desde la API
+    async function fetchProducts(categorySlug) {
+        try {
+            const url = categorySlug 
+                ? `/api/v1/products?category_slug=${categorySlug}`
+                : '/api/v1/products';
+                
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data.data;
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
+    }
 
-    // Función para mostrar/ocultar el carrito
-    window.toggleCart = function () {
-        const cartSidebar = document.getElementById("cartSidebar");
-        cartSidebar.classList.toggle("active");
-    };
-
-    // Generar menú de pizzas dinámicamente
-    function generatePizzaMenu() {
+    // Generar menú de pizzas
+    async function generatePizzaMenu() {
         const container = document.getElementById("pizzaMenu");
-        if (!container) {
-            console.error("No se encontró el contenedor de pizzas");
-            return;
-        }
-        pizzas.forEach(pizza => {
+        if (!container) return;
+        
+        const products = await fetchProducts('pizza');
+        const sizes = await fetchSizes(); // Obtener los tamaños primero
+        
+        products.forEach(product => {
+            const pizzaData = {
+                id: product.id,
+                name: product.name,
+                basePrice: product.price,
+                sizes: sizes
+            };
+        
             const card = `
                 <div class="col-md-4 text-center">
                     <div class="card h-100 shadow hover-3d">
                         <div class="card-body">
-                            <h3 class="card-title">${pizza.name}</h3>
-                            <p class="card-text">${pizza.description}</p>
-                            <p class="card-text">Chica: $${pizza.prices.chica} | Mediana: $${pizza.prices.mediana} | Grande: $${pizza.prices.grande}</p>
-                            <button class="btn btn-primary" onclick="openSizeModal(${JSON.stringify(pizza).replace(/"/g, '&quot;')})">Agregar al Carrito</button>
+                            <h3 class="card-title">${product.name}</h3>
+                            <p class="card-text">${product.description}</p>
+                            <p class="card-text">Desde $${product.price}</p>
+                            ${product.image_url ? 
+                                `<img src="${product.image_url}" class="card-img-top mb-3" alt="${product.name}">` 
+                                : ''}
+                            <button class="btn btn-primary"
+                                onclick="openSizeModal(${JSON.stringify(pizzaData).replace(/"/g, "'")})">
+                                Elegir Tamaño
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -127,22 +422,90 @@
         });
     }
 
-    // Generar menú de otros productos (hotdogs, hamburguesas, papas)
-    function generateMenu(items, containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) {
-            console.error(`No se encontró el contenedor con ID: ${containerId}`);
-            return;
-        }
-        items.forEach(item => {
+    async function generateHotdogMenu() {
+        const container = document.getElementById("hotdogMenu");
+        if (!container) return;
+        
+        const products = await fetchProducts('hotdog');
+        
+        products.forEach(product => {
             const card = `
                 <div class="col-md-4 text-center">
                     <div class="card h-100 shadow hover-3d">
                         <div class="card-body">
-                            <h3 class="card-title">${item.name}</h3>
-                            <p class="card-text">${item.description}</p>
-                            <p class="card-text">$${item.price}</p>
-                            <button class="btn btn-primary" onclick="addToCart('${item.name}', ${item.price})">Agregar al Carrito</button>
+                            <h3 class="card-title">${product.name}</h3>
+                            <p class="card-text">${product.description}</p>
+                            <p class="card-text">$${product.price}</p>
+                            ${product.image_url ? 
+                                `<img src="${product.image_url}" class="card-img-top mb-3" alt="${product.name}">` 
+                                : ''}
+                            <button class="btn btn-primary"
+        onclick="addToCart('${product.name}', ${product.price}, ${product.id})"
+    >
+                                Agregar al Carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+    }
+    
+    // Generar menú de hamburguesas
+    async function generateBurgerMenu() {
+        const container = document.getElementById("burgerMenu");
+        if (!container) return;
+        
+        const products = await fetchProducts('hamburguesa');
+        
+        products.forEach(product => {
+            const card = `
+                <div class="col-md-4 text-center">
+                    <div class="card h-100 shadow hover-3d">
+                        <div class="card-body">
+                            <h3 class="card-title">${product.name}</h3>
+                            <p class="card-text">${product.description}</p>
+                            <p class="card-text">$${product.price}</p>
+                            ${product.image_url ? 
+                                `<img src="${product.image_url}" class="card-img-top mb-3" alt="${product.name}">` 
+                                : ''}
+                            <button class="btn btn-primary"
+        onclick="addToCart('${product.name}', ${product.price}, ${product.id})"
+    >
+                                Agregar al Carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+    }
+    
+    // Generar menú de papas
+    async function generatePotatoMenu() {
+        const container = document.getElementById("potatoMenu");
+        if (!container) return;
+        
+        const products = await fetchProducts('papas');
+        
+        products.forEach(product => {
+            const card = `
+                <div class="col-md-4 text-center">
+                    <div class="card h-100 shadow hover-3d">
+                        <div class="card-body">
+                            <h3 class="card-title">${product.name}</h3>
+                            <p class="card-text">${product.description}</p>
+                            <p class="card-text">$${product.price}</p>
+                            ${product.image_url ? 
+                                `<img src="${product.image_url}" class="card-img-top mb-3" alt="${product.name}">` 
+                                : ''}
+                            <button class="btn btn-primary"
+        onclick="addToCart('${product.name}', ${product.price}, ${product.id})"
+    >
+                                Agregar al Carrito
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -151,16 +514,124 @@
         });
     }
 
-    // Función para agregar al carrito (para hotdogs, hamburguesas y papas)
-    window.addToCart = function (name, price) {
-        cart.push({ name, price });
-        updateCart();
-    };
+    async function generateBebidaMenu() {
+        const container = document.getElementById("bebidaMenu");
+        if (!container) return;
+        
+        const products = await fetchProducts('bebidas');
+        
+        products.forEach(product => {
+            const card = `
+                <div class="col-md-4 text-center">
+                    <div class="card h-100 shadow hover-3d">
+                        <div class="card-body">
+                            <h3 class="card-title">${product.name}</h3>
+                            <p class="card-text">${product.description}</p>
+                            <p class="card-text">$${product.price}</p>
+                            ${product.image_url ? 
+                                `<img src="${product.image_url}" class="card-img-top mb-3" alt="${product.name}">` 
+                                : ''}
+                            <button class="btn btn-primary"
+        onclick="addToCart('${product.name}', ${product.price}, ${product.id})"
+    >
+                                Agregar al Carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+    }
 
-    // Inicializar menús
-    generatePizzaMenu();
-    generateMenu(hotdogs, "hotdogMenu");
-    generateMenu(hamburguesas, "burgerMenu");
-    generateMenu(papas, "potatoMenu");
+// Generar menú de tacos
+async function generateTacoMenu() {
+    const container = document.getElementById("tacoMenu");
+    if (!container) return;
+    
+    const products = await fetchProducts('tacos');
+    
+    products.forEach(product => {
+        const card = `
+            <div class="col-md-4 text-center">
+                <div class="card h-100 shadow hover-3d">
+                    <div class="card-body">
+                        <h3 class="card-title">${product.name}</h3>
+                        <p class="card-text">${product.description}</p>
+                        <p class="card-text">$${product.price}</p>
+                        ${product.image_url ? 
+                            `<img src="${product.image_url}" class="card-img-top mb-3" alt="${product.name}">` 
+                            : ''}
+                        <button class="btn btn-primary"
+        onclick="addToCart('${product.name}', ${product.price}, ${product.id})"
+    >
+                            Agregar al Carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML += card;
+    });
+}
 
-    console.log('Archivo pizzas.js cargado correctamente');
+    
+
+async function fetchSizes() {
+    try {
+        const response = await fetch('/api/v1/sizes', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al obtener los tamaños');
+        }
+
+        const result = await response.json();
+        console.log('Tamaños obtenidos:', result.sizes); // Para depuración
+        return result.sizes;
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
+
+    // -------------------------------
+    // INICIALIZACIÓN DE LA APLICACIÓN
+    // -------------------------------
+
+    // Botón del carrito
+    const cartButton = document.getElementById("carButton");
+    if (cartButton) {
+        cartButton.addEventListener("click", function() {
+            loadCart();
+            toggleCart();
+        });
+    }
+
+    cartButton.addEventListener("click", toggleCart);
+
+    // Botón "Vaciar Carrito"
+    const clearCartButton = document.getElementById("clearCartButton");
+    clearCartButton.addEventListener("click", clearCart);
+
+    // Botón "Confirmar" en el modal
+    const confirmSizeButton = document.getElementById("confirmSizeButton");
+    confirmSizeButton.addEventListener("click", confirmSize);
+
+    // Generar menús
+generatePizzaMenu();
+generateHotdogMenu();
+generateBurgerMenu();
+generatePotatoMenu();
+generateBebidaMenu();  // Agregar esta línea
+generateTacoMenu();    // Agregar esta línea
+setupEventListeners();
+loadCart();
+
+    console.log('Archivo datosPizza.js cargado correctamente');
+});
