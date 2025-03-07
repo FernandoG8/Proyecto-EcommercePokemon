@@ -20,6 +20,8 @@ Route::prefix('v1')->group(function () {
     // Autenticación
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
     
     // Catálogo de productos (público)
     Route::get('/products', [ProductController::class, 'index']);
@@ -30,7 +32,7 @@ Route::prefix('v1')->group(function () {
 });
 
 // Rutas protegidas (requieren autenticación)
-// Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Perfil de usuario
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -69,4 +71,4 @@ Route::prefix('v1')->group(function () {
         Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus']);
         Route::put('/orders/{order}/payment', [OrderController::class, 'updatePaymentStatus']);
     });
-// });
+});
