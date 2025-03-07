@@ -12,9 +12,10 @@ function fetchPizzaSizes() {
                         <td>${size.id}</td>
                         <td>${size.name}</td>
                         <td>${size.price_multiplier}</td>
-                        <td>${size.is_active ? 'Yes' : 'No'}</td>
+                        <td>${size.is_active ? 'Si' : 'No'}</td>
+
                         <td>
-                            <a href="/admin/categories/${size.id}/edit" class="btn btn-sm btn-warning">Edit</a>
+                            <button onclick="openEditModal(${size.id})" class="btn btn-sm btn-warning">Edit</button>
                             <button onclick="deleteCategory(${size.id})" class="btn btn-sm btn-danger">Delete</button>
                         </td>
                     </tr>
