@@ -1,8 +1,11 @@
 <?php
-
+use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\PokemonController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\CheckoutController;
+use Illuminate\Http\Request; // Añade esta línea
+
 
 // Rutas públicas (sin autenticación requerida)
 Route::get('/Inicio', function () {
@@ -11,12 +14,23 @@ Route::get('/Inicio', function () {
 
 Route::get('/Menu', function () {
     return view('menu');
+})->name('menu');
 });
 
 Route::get('/Registro', function () {
     return view('registro');
+
+Route::get('/checkout' ,function(){
+    return view('checkout');
 });
 
+Route::get('/pedidos' ,function(){
+    return view('pedidos');
+});
+
+
+
+Route::prefix('admin')->group(function () {
 // Rutas protegidas (requieren autenticación)
 Route::middleware('auth')->prefix('admin')->group(function () {
     
