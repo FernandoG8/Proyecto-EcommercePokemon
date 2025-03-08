@@ -26,12 +26,26 @@ class OrderController extends Controller
                 }
                 $orders = $query->latest()->paginate(10);
             } else {
-                $orders = $user->orders()->with('items')->latest()->paginate(10);
+                $query = $user->orders()->with('items');
+                
+                // Permitir filtrado por estado también para usuarios normales
+                if ($request->has('status')) {
+                    $query->where('status', $request->status);
+                }
+                
+                // Permitir ordenar por diferentes campos
+                if ($request->has('sort_by') && $request->has('sort_order')) {
+                    $query->orderBy($request->sort_by, $request->sort_order);
+                } else {
+                    $query->latest(); // ordenar por fecha más reciente
+                }
+                
+                $orders = $query->paginate(10);
             }
-
+    
             return response()->json($orders);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Error al obtener los pedidos.'], 500);
+            return response()->json(['error' => 'Error al obtener los pedidos: ' . $e->getMessage()], 500);
         }
     }
 
@@ -102,12 +116,6 @@ class OrderController extends Controller
             if (!$user->isAdmin() && $order->user_id !== $user->id) {
                  return response()->json(['message' => 'No autorizado.'], 403);
              }
-
-            if (!$user->isAdmin() && $order->user_id !== $user->id) {
-                return response()->json(['message' => 'No autorizado.'], 403);
-            }
-
-
             $order->load('items', 'user');
             return response()->json(['order' => $order]);
         } catch (Exception $e) {
