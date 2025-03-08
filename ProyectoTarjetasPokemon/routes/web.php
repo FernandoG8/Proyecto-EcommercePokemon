@@ -7,20 +7,18 @@ use App\Http\Controllers\CheckoutController;
 use Illuminate\Http\Request; // Añade esta línea
 
 
-// Ruta principal
+// Rutas públicas (sin autenticación requerida)
 Route::get('/Inicio', function () {
     return view('index');
 });
+
 Route::get('/Menu', function () {
     return view('menu');
 })->name('menu');
-Route::get('/Registro', function () {
-    return view('registro');
-});
-Route::get('/subirImagenes' ,function(){
-    return view('subirImagenes');
 });
 
+Route::get('/Registro', function () {
+    return view('registro');
 
 Route::get('/checkout' ,function(){
     return view('checkout');
@@ -33,6 +31,9 @@ Route::get('/pedidos' ,function(){
 
 
 Route::prefix('admin')->group(function () {
+// Rutas protegidas (requieren autenticación)
+Route::middleware('auth')->prefix('admin')->group(function () {
+    
     Route::get('/products', function () {
         return view('admin.products.index');
     });
@@ -48,6 +49,14 @@ Route::prefix('admin')->group(function () {
     Route::get('/categories', function () {
         return view('admin.categories.index');
     });
+
+    Route::get('/categories/create', function () {
+        return view('admin.categories.create');
+    });
+
+    Route::get('/categories/{category}/edit', function () {
+        return view('admin.categories.edit');
+    });
     
     Route::get('/orders', function () {
         return view('admin.orders.index');
@@ -56,5 +65,18 @@ Route::prefix('admin')->group(function () {
     Route::get('/sizes', function () {
         return view('admin.pizza-sizes.index');
     });
+    Route::get('/sizes/create', function () {
+        return view('admin.pizza-sizes.create');
+    });
 
+    Route::get('/sizes/{size_id}/edit', function () {
+        return view('admin.pizza-sizes.edit');
+    });
+
+    Route::get('/orders', function () {
+        return view('admin.orders.index');
+    });
+    Route::get('/orders/{orderId}/edit', function () {
+        return view('admin.orders.edit');
+    });
 });

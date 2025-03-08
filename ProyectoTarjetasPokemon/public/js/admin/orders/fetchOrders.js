@@ -20,7 +20,7 @@ function fetchOrders() {
                         <td>${order.notes}</td>
                         <td>${order.delivered_at}</td>
                         <td>
-                            <a href="/admin/categories/${order.id}/edit" class="btn btn-sm btn-warning">Edit</a>
+                            <button onclick="openEditModal(${order.id})" class="btn btn-sm btn-warning">Edit</button>
                             <button onclick="deleteCategory(${order.id})" class="btn btn-sm btn-danger">Delete</button>
                         </td>
                     </tr>

@@ -16,7 +16,7 @@ class PizzaSizeController extends Controller
     public function index()
     {
         try {
-            $sizes = PizzaSize::where('is_active', true)->get();
+            $sizes = PizzaSize::all();
             return response()->json(['sizes' => $sizes]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error al obtener los tamaños de pizza.'], 500);

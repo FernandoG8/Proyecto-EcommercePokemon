@@ -1,4 +1,3 @@
-console.log('fetchCategories.js loaded!');
 function fetchCategories() {
     axios.get('/api/v1/categories')
         .then(response => {
@@ -15,7 +14,7 @@ function fetchCategories() {
                         <td>${category.slug}</td>
                         <td>${category.description}</td>
                         <td>
-                            <a href="/admin/categories/${category.id}/edit" class="btn btn-sm btn-warning">Edit</a>
+                             <button onclick="openEditModal(${category.id})" class="btn btn-sm btn-warning">Edit</button>
                             <button onclick="deleteCategory(${category.id})" class="btn btn-sm btn-danger">Delete</button>
                         </td>
                     </tr>

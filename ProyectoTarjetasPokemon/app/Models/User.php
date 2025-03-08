@@ -48,4 +48,16 @@ class User extends Authenticatable
 {
     return $this->hasOne(Cart::class);
 }
+
+    /**
+     * Retorna el rol de la clase.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

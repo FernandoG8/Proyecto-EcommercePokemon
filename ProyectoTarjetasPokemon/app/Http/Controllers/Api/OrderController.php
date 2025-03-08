@@ -78,6 +78,7 @@ class OrderController extends Controller
                 'error' => 'Error al obtener los pedidos',
                 'message' => $e->getMessage()
             ], 500);
+
         }
     }
 
@@ -99,8 +100,16 @@ class OrderController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+
         $user = $request->user();
         Log::info('Usuario:', ['id' => $user->id]);
+        try {
+            $user = $request->user();
+            $cart = $user->cart;
+
+            if (!$cart || $cart->items->isEmpty()) {
+                return response()->json(['message' => 'El carrito está vacío.'], 422);
+            }
 
         $cart = $user->cart;
         Log::info('Carrito:', ['cart' => $cart ? 'encontrado' : 'no encontrado']);
@@ -175,10 +184,10 @@ class OrderController extends Controller
     {
         try {
             $user = $request->user();
+
             if (!$user->isAdmin() && $order->user_id !== $user->id) {
-                return response()->json(['message' => 'No autorizado.'], 403);
-            }
-            
+                 return response()->json(['message' => 'No autorizado.'], 403);
+             }
             $order->load('items', 'user');
             return response()->json(['order' => $order]);
         } catch (Exception $e) {

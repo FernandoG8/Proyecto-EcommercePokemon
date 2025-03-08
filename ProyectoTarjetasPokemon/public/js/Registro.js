@@ -177,12 +177,21 @@ async function loginUser(email, password) {
             body: JSON.stringify({ email, password })
         });
 
+
         if (!response.ok) {
             throw new Error('Error en la autenticación');
         }
-
         // Usar la nueva función handleLogin
-        await handleLogin(response);
+        await handleLogin(response); 
+        // Guardar el token en localStorage
+        console.log(data.token);
+        console.log(data.redirect);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+
         
         showAlert('Inicio de sesión exitoso', 'success');
         
