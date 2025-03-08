@@ -1,8 +1,11 @@
 <?php
-
+use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\PokemonController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\CheckoutController;
+use Illuminate\Http\Request; // Añade esta línea
+
 
 // Ruta principal
 Route::get('/Inicio', function () {
@@ -10,13 +13,19 @@ Route::get('/Inicio', function () {
 });
 Route::get('/Menu', function () {
     return view('menu');
-});
+})->name('menu');
 Route::get('/Registro', function () {
     return view('registro');
 });
 Route::get('/subirImagenes' ,function(){
     return view('subirImagenes');
 });
+
+
+Route::get('/checkout' ,function(){
+    return view('checkout');
+});
+
 
 Route::prefix('admin')->group(function () {
     Route::get('/products', function () {

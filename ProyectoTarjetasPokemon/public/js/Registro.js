@@ -68,8 +68,6 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
 // Función para registrar un nuevo usuario
 async function registerUserCustomer(name, email, password, password_confirmation, phone) {
     try {
-        console.log('Datos enviados:', { name, email, password, password_confirmation, phone }); // Para debug
-        
         const data = await apiRequest('/register', 'POST', {
             name,
             email,
@@ -79,19 +77,32 @@ async function registerUserCustomer(name, email, password, password_confirmation
             role: 'customer'
         });
         
-        // Guardar token y datos del usuario
         if (data.token) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
         }
         
         showAlert('Usuario registrado correctamente', 'success');
+        
+        // Cerrar el modal y recargar la página
+        const authModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+        if (authModal) {
+            authModal.hide();
+        }
+        
+        // Pequeño delay para que se vea el mensaje de éxito
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+        
         return data;
     } catch (error) {
         showAlert(`Error al registrar: ${error.message}`);
         throw error;
     }
 }
+
+
 async function registerUserAdmin(name, email, password, password_confirmation) {
     const role = 'admin';
      try {
@@ -111,6 +122,9 @@ async function registerUserAdmin(name, email, password, password_confirmation) {
          throw error;
      }
  }
+
+
+ 
  async function logoutUser() {
     try {
         const token = localStorage.getItem('token');
@@ -132,23 +146,22 @@ async function registerUserAdmin(name, email, password, password_confirmation) {
             throw new Error('Error al cerrar sesión');
         }
 
-        // Limpiar datos de sesión
         localStorage.clear();
-        
-        // Actualizar la interfaz
-        updateUserInterface();
-        
-        // Recargar la página
-        window.location.reload();
-
         showAlert('Sesión cerrada correctamente', 'success');
+        
+        // Recargar después de un pequeño delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     } catch (error) {
         console.error('Error al cerrar sesión:', error);
         showAlert(`Error al cerrar sesión: ${error.message}`);
-        
-        // Incluso si hay error, limpiamos el localStorage
         localStorage.clear();
-        updateUserInterface();
+        
+        // Recargar incluso si hay error
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     }
 }
 
@@ -160,13 +173,22 @@ async function loginUser(email, password) {
             password
         });
         
-        // Guardar el token en localStorage'
-        console.log(data.token);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
         showAlert('Inicio de sesión exitoso', 'success');
-        updateUserInterface();
+        
+        // Cerrar el modal y recargar la página
+        const authModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+        if (authModal) {
+            authModal.hide();
+        }
+        
+        // Pequeño delay para que se vea el mensaje de éxito
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+        
         return data;
     } catch (error) {
         showAlert(`Error al iniciar sesión: ${error.message}`);
