@@ -20,51 +20,61 @@ class AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'address' => 'nullable|string',
-            'phone' => 'nullable|string',
-            'role' => 'nullable|string|in:admin,customer',
-        ]);
 
-        try {
-            DB::beginTransaction();
-            
-            $role = $request->role ?? 'customer';
-            
-            // Crear usuario
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'address' => $request->address,
-                'phone' => $request->phone,
-                'role' => $role,
-            ]);
 
-            // Crear carrito para el usuario
-            Cart::create(['user_id' => $user->id]);
-            
-            DB::commit();
-
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'user' => $user,
-                'token' => $token
-            ], 201);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Error al registrar el usuario. Intente nuevamente.'], 500);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Ocurrió un error inesperado.'], 500);
-        }
-    }
+     public function register(Request $request)
+     {
+         try {
+             \Log::info('Datos recibidos:', $request->all()); // Para debug
+     
+             $validated = $request->validate([
+                 'name' => 'required|string|max:255',
+                 'email' => 'required|string|email|max:255|unique:users',
+                 'password' => 'required|string|min:8',
+                 'password_confirmation' => 'required|same:password',
+                 'phone' => 'nullable|string|max:20',
+                 'role' => 'nullable|string|in:admin,customer',
+             ]);
+     
+             DB::beginTransaction();
+             
+             $user = User::create([
+                 'name' => $validated['name'],
+                 'email' => $validated['email'],
+                 'password' => Hash::make($validated['password']),
+                 'phone' => $validated['phone'] ?? null,
+                 'role' => $validated['role'] ?? 'customer',
+             ]);
+     
+             // Crear carrito para el usuario
+             Cart::create(['user_id' => $user->id]);
+             
+             $token = $user->createToken('auth_token')->plainTextToken;
+             
+             DB::commit();
+     
+             return response()->json([
+                 'message' => 'Usuario registrado exitosamente',
+                 'user' => $user,
+                 'token' => $token
+             ], 201);
+     
+         } catch (ValidationException $e) {
+             DB::rollBack();
+             \Log::error('Error de validación:', $e->errors());
+             return response()->json([
+                 'message' => 'Error de validación',
+                 'errors' => $e->errors()
+             ], 422);
+         } catch (\Exception $e) {
+             DB::rollBack();
+             \Log::error('Error en registro:', ['error' => $e->getMessage()]);
+             return response()->json([
+                 'message' => 'Error al registrar usuario',
+                 'error' => $e->getMessage()
+             ], 500);
+         }
+     }
 
     /**
      * Inicia sesión de usuario y genera un token de autenticación.
@@ -113,10 +123,18 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
+            // Revocar el token actual
             $request->user()->currentAccessToken()->delete();
-            return response()->json(['message' => 'Sesión cerrada correctamente']);
+            
+            return response()->json([
+                'message' => 'Sesión cerrada correctamente'
+            ], 200);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Error al cerrar sesión.'], 500);
+            \Log::error('Error en logout:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Error al cerrar sesión',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

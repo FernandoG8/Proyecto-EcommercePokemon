@@ -3,14 +3,15 @@ const API_BASE_URL = 'http://localhost:8000/api/v1'; // Ajusta esta URL a tu API
 
 // Elementos del DOM
 const alertMessage = document.getElementById('alertMessage');
-const registerForm = document.getElementById('registerForm');
-
-const loginForm = document.getElementById('loginForm');
-const userInfo = document.getElementById('userInfo');
-const userName = document.getElementById('userName');
-const userEmail = document.getElementById('userEmail');
-const userRole = document.getElementById('userRole');
-const logoutButton = document.getElementById('logoutButton');
+    const registerForm = document.getElementById('registerForm');
+    const loginForm = document.getElementById('loginForm');
+    const logoutButton = document.getElementById('logoutButton');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const authButton = document.getElementById('authButton');
+    const showLoginLink = document.getElementById('showLogin');
+    const showRegisterLink = document.getElementById('showRegister');
+    const registerDiv = document.getElementById('registerDiv');
+    const loginDiv = document.getElementById('loginDiv');
 
 // Función para mostrar mensajes de alerta
 function showAlert(message, type = 'danger') {
@@ -30,37 +31,30 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     
     const headers = {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
     };
     
-    // Agregar token de autenticación si existe
     const token = localStorage.getItem('token');
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const options = {
-        method,
-        headers,
-        credentials: 'include' // Esto envía cookies con la solicitud
-    };
-    
-    if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
-        options.body = JSON.stringify(data);
-    }
-    
     try {
-        const response = await fetch(url, options);
-        
-        // Si la respuesta no es JSON, maneja el error
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('La respuesta no es JSON válido');
-        }
+        const response = await fetch(url, {
+            method,
+            headers,
+            body: data ? JSON.stringify(data) : null,
+            credentials: 'include'
+        });
         
         const responseData = await response.json();
         
         if (!response.ok) {
+            if (response.status === 422) {
+                const errorMessages = Object.values(responseData.errors).flat().join('\n');
+                throw new Error(errorMessages);
+            }
             throw new Error(responseData.message || 'Ha ocurrido un error');
         }
         
@@ -72,19 +66,26 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
 }
 
 // Función para registrar un nuevo usuario
-async function registerUserCustomer(name, email, password, password_confirmation) {
-   const role = 'customer';
+async function registerUserCustomer(name, email, password, password_confirmation, phone) {
     try {
+        console.log('Datos enviados:', { name, email, password, password_confirmation, phone }); // Para debug
+        
         const data = await apiRequest('/register', 'POST', {
             name,
             email,
             password,
             password_confirmation,
-            role
-        
+            phone: phone || '',
+            role: 'customer'
         });
         
-        showAlert('Usuario registrado correctamente. Ahora puedes iniciar sesión.', 'success');
+        // Guardar token y datos del usuario
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        
+        showAlert('Usuario registrado correctamente', 'success');
         return data;
     } catch (error) {
         showAlert(`Error al registrar: ${error.message}`);
@@ -110,18 +111,44 @@ async function registerUserAdmin(name, email, password, password_confirmation) {
          throw error;
      }
  }
-async function logoutUser() {
+ async function logoutUser() {
     try {
-        await apiRequest('/logout', 'POST');
-        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('No hay sesión activa');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/logout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al cerrar sesión');
+        }
+
         // Limpiar datos de sesión
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.clear();
         
-        showAlert('Sesión cerrada correctamente', 'success');
+        // Actualizar la interfaz
         updateUserInterface();
+        
+        // Recargar la página
+        window.location.reload();
+
+        showAlert('Sesión cerrada correctamente', 'success');
     } catch (error) {
+        console.error('Error al cerrar sesión:', error);
         showAlert(`Error al cerrar sesión: ${error.message}`);
+        
+        // Incluso si hay error, limpiamos el localStorage
+        localStorage.clear();
+        updateUserInterface();
     }
 }
 
@@ -163,26 +190,70 @@ function updateUserInterface() {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     
+    console.log('Token:', token);
+    console.log('UserData:', userData);
+    
     if (token && userData) {
-        // Usuario autenticado
         const user = JSON.parse(userData);
-        
-        // Mostrar información del usuario
-        userName.textContent = user.name;
-        userEmail.textContent = user.email;
-        userRole.textContent = user.role || 'Cliente';
-        
-        // Mostrar sección de usuario y ocultar formularios
-        userInfo.classList.remove('d-none');
-        registerForm.parentElement.parentElement.classList.add('d-none');
-        loginForm.parentElement.parentElement.classList.add('d-none');
+        console.log('Usuario autenticado:', user);
+        if (welcomeMessage) welcomeMessage.textContent = `¡Bienvenido, ${user.name}!`;
+        if (welcomeMessage) welcomeMessage.style.display = 'inline';
+        if (authButton) authButton.style.display = 'none';
+        if (logoutButton) logoutButton.style.display = 'inline';
     } else {
-        // Usuario no autenticado
-        userInfo.classList.add('d-none');
-        registerForm.parentElement.parentElement.classList.remove('d-none');
-        loginForm.parentElement.parentElement.classList.remove('d-none');
+        console.log('No hay sesión activa');
+        if (welcomeMessage) welcomeMessage.style.display = 'none';
+        if (authButton) authButton.style.display = 'inline';
+        if (logoutButton) logoutButton.style.display = 'none';
     }
 }
+
+// Toggle entre formularios
+if (showLoginLink) {
+    showLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        registerDiv.style.display = 'none';
+        loginDiv.style.display = 'block';
+    });
+}
+
+if (showRegisterLink) {
+    showRegisterLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginDiv.style.display = 'none';
+        registerDiv.style.display = 'block';
+    });
+}
+
+if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const phone = document.getElementById('registerPhone').value;
+        const password = document.getElementById('registerPassword').value;
+        const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+        
+        if (password !== passwordConfirm) {
+            showAlert('Las contraseñas no coinciden');
+            return;
+        }
+        
+        try {
+            await registerUserCustomer(name, email, password, passwordConfirm);
+            registerForm.reset();
+            // Mostrar el formulario de login después del registro exitoso
+            if (loginDiv && registerDiv) {
+                registerDiv.style.display = 'none';
+                loginDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error en el registro:', error);
+        }
+    });
+}
+
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
@@ -195,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const name = document.getElementById('registerName').value;
         const email = document.getElementById('registerEmail').value;
+        const phone = document.getElementById('registerPhone').value;
         const password = document.getElementById('registerPassword').value;
         const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
         

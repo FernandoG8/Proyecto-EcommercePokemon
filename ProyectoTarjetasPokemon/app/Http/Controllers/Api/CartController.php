@@ -18,80 +18,88 @@ class CartController extends Controller
      * Obtiene el carrito del usuario autenticado.
      */
     public function index(Request $request)
-    {
-        try {
-            $cart = $request->user()->cart;
-            
-            if (!$cart) {
-                $cart = Cart::create(['user_id' => $request->user()->id]);
-            }
-            
-            $cart->load('items.product', 'items.size');
-            
-            return response()->json([
-                'cart' => $cart,
-                'items' => $cart->items,
-                'total' => $cart->getTotal()
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Error al obtener el carrito.'], 500);
-        }
+{
+    try {
+        // Obtener el carrito del usuario o crear uno nuevo
+        $cart = Cart::firstOrCreate([
+            'user_id' => $request->user()->id
+        ]);
+
+        // Cargar los items con sus relaciones
+        $items = $cart->items()
+            ->with(['product', 'size'])
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'quantity' => $item->quantity,
+                    'unit_price' => (float)$item->unit_price,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name
+                    ],
+                    'size' => $item->size ? [
+                        'id' => $item->size->id,
+                        'name' => $item->size->name
+                    ] : null,
+                    'subtotal' => (float)$item->unit_price * $item->quantity
+                ];
+            });
+
+        $total = $items->sum('subtotal');
+
+        return response()->json([
+            'items' => $items,
+            'total' => $total
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error loading cart: ' . $e->getMessage());
+        return response()->json(['error' => 'Error al cargar el carrito'], 500);
     }
+}
+
+
 
     /**
      * Agrega un producto al carrito del usuario.
      */
     public function addItem(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'special_instructions' => 'nullable|string',
-            'pizza_size_id' => 'nullable|exists:pizza_sizes,id',
-        ]);
-
         try {
-            DB::beginTransaction();
-            
-            $user = $request->user();
-            $cart = $user->cart ?? Cart::create(['user_id' => $user->id]);
-            
-            $product = Product::findOrFail($request->product_id);
-            
-            if ($product->stock < $request->quantity) {
-                return response()->json(['error' => 'Stock insuficiente.'], 422);
-            }
-
-            $unitPrice = $product->price;
-            
-            if ($request->has('pizza_size_id') && $request->pizza_size_id) {
-                $size = PizzaSize::findOrFail($request->pizza_size_id);
-                $unitPrice *= $size->price_multiplier;
-            }
-
-            $cartItem = CartItem::create([
-                'cart_id' => $cart->id,
-                'product_id' => $product->id,
-                'quantity' => $request->quantity,
-                'special_instructions' => $request->special_instructions,
-                'unit_price' => $unitPrice,
-                'pizza_size_id' => $request->pizza_size_id,
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'quantity' => 'required|integer|min:1',
+                'unit_price' => 'required|numeric|min:0',
+                'special_instructions' => 'nullable|string',
+                'pizza_size_id' => 'nullable|exists:pizza_sizes,id'
             ]);
-
-            $product->decrement('stock', $request->quantity);
-            
-            DB::commit();
-            
-            return response()->json(['message' => 'Producto agregado al carrito.', 'cart_item' => $cartItem->load('product', 'size')], 201);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Error al agregar el producto al carrito.'], 500);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Ocurrió un error inesperado.'], 500);
+    
+            $cart = Cart::firstOrCreate([
+                'user_id' => $request->user()->id
+            ]);
+    
+            $cartItem = $cart->items()->create([
+                'product_id' => $validated['product_id'],
+                'quantity' => $validated['quantity'],
+                'unit_price' => $validated['unit_price'],
+                'special_instructions' => $validated['special_instructions'] ?? null,
+                'pizza_size_id' => $validated['pizza_size_id'] ?? null
+            ]);
+    
+            return response()->json([
+                'message' => 'Producto agregado al carrito',
+                'cart_item' => $cartItem->load('product', 'size')
+            ], 201);
+    
+        } catch (\Exception $e) {
+            \Log::error('Error adding item to cart: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al agregar el producto al carrito'
+            ], 500);
         }
     }
-
+    
     /**
      * Actualiza un producto en el carrito.
      */

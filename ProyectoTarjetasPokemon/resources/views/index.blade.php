@@ -15,46 +15,121 @@
     <!-- Fuentes -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Fredoka+One&display=swap"
           rel="stylesheet">
+          <!-- Agregar en el head -->
+<link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <!-- RUTA AJUSTADA A asset('storage/images/pizzaLogopreview.png') -->
-                <img src="{{ asset('storage/images/pizzaLogopreview.png') }}" alt="TAZ PIZZA" height="50" class="me-2">
-                <span class="fs-3 fw-bold" style="font-family: 'Fredoka One', cursive;">TAZ PIZZA</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Menu" id="menuLink">Menú</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Pedidos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Contacto</a>
-                    </li>
-                </ul>
-                <div class="ms-3">
-                    <!-- Removemos onclick; usamos id="carButton" -->
-                    <button id="carButton" class="btn btn-outline-light" type="button">
-                        <!-- RUTA AJUSTADA A asset('storage/images/carritoLogo.png') -->
-                        <img src="{{ asset('storage/images/carritoLogo.png') }}" alt="Carrito" height="30">
-                        <span id="cartCount"></span>
-                    </button>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="{{ asset('storage/images/pizzaLogopreview.png') }}" alt="TAZ PIZZA" height="50" class="me-2">
+            <span class="fs-3 fw-bold" style="font-family: 'Fredoka One', cursive;">TAZ PIZZA</span>
+            <!-- Agregar el mensaje de bienvenida -->
+            <span id="welcomeMessage" class="ms-2 text-light" style="display: none;"></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Menu">Menú</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Pedidos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contacto</a>
+                </li>
+            </ul>
+            <div class="ms-3">
+                <!-- Botón de Registro/Iniciar Sesión -->
+                <button id="authButton" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#authModal">
+                    <i class="fas fa-user me-2"></i>Registrarse / Iniciar Sesión
+                </button>
+                <!-- Botón de Cerrar Sesión -->
+                <button id="logoutButton" class="btn btn-outline-light me-2" style="display: none;" onclick="logoutUser()">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </button>
+                <!-- Carrito -->
+                <button id="carButton" class="btn btn-outline-light">
+                    <img src="{{ asset('storage/images/carritoCompras.png') }}" alt="Carrito" height="30">
+                    <span id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<<!-- Modal de Registro/Iniciar Sesión -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="authModalLabel">Acceso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Alerta para mensajes -->
+                <div id="alertMessage" class="alert d-none" role="alert"></div>
+                
+                <!-- Formulario de Registro -->
+<div id="registerDiv">
+    <h4>Registro</h4>
+    <form id="registerForm">
+        <div class="mb-3">
+            <label for="registerName" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="registerName" required>
+        </div>
+        <div class="mb-3">
+            <label for="registerEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="registerEmail" required>
+        </div>
+        <div class="mb-3">
+            <label for="registerPhone" class="form-label">Teléfono</label>
+            <input type="tel" class="form-control" id="registerPhone">
+        </div>
+        <div class="mb-3">
+            <label for="registerPassword" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="registerPassword" required>
+        </div>
+        <div class="mb-3">
+            <label for="registerPasswordConfirm" class="form-label">Confirmar Contraseña</label>
+            <input type="password" class="form-control" id="registerPasswordConfirm" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+    </form>
+    <hr>
+    <p class="text-center">¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión</a></p>
+</div>
+
+                <!-- Formulario de Login -->
+                <div id="loginDiv" style="display: none;">
+                    <h4>Iniciar Sesión</h4>
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+                    </form>
+                    <hr>
+                    <p class="text-center">¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a></p>
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
+</div>
+
 
     <!-- Carrito desplegable -->
     <div id="cartSidebar" class="cart-sidebar">
@@ -209,6 +284,27 @@
 
     <!-- Bootstrap y tu archivo JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!--<script src="{{ asset('js/enlaces.js') }}"></script> -->
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <script>
+        // Verificar el estado de autenticación al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            const userName = localStorage.getItem('userName');
+            
+            if (token && userName) {
+                // Usuario autenticado
+                document.getElementById('authButton').style.display = 'none';
+                document.getElementById('logoutButton').style.display = 'inline-block';
+                document.getElementById('welcomeMessage').textContent = `¡Hola ${userName}!`;
+                document.getElementById('welcomeMessage').style.display = 'inline';
+            } else {
+                // Usuario no autenticado
+                document.getElementById('authButton').style.display = 'inline-block';
+                document.getElementById('logoutButton').style.display = 'none';
+                document.getElementById('welcomeMessage').style.display = 'none';
+            }
+        });
+    </script>
+    <script src="{{ asset('js/Registro.js') }}"></script>
 </body>
 </html>
