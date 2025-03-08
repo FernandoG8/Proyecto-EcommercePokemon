@@ -15,10 +15,10 @@ Route::get('/Inicio', function () {
 Route::get('/Menu', function () {
     return view('menu');
 })->name('menu');
-});
 
 Route::get('/Registro', function () {
     return view('registro');
+});
 
 Route::get('/checkout' ,function(){
     return view('checkout');
@@ -30,7 +30,7 @@ Route::get('/pedidos' ,function(){
 
 
 
-Route::prefix('admin')->group(function () {
+
 // Rutas protegidas (requieren autenticación)
 Route::middleware('auth')->prefix('admin')->group(function () {
     
