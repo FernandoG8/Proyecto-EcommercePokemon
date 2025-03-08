@@ -1,5 +1,4 @@
-<form id="create-product-form" action="{{ url('/admin/products') }}" method="POST" enctype="multipart/form-data">
-    @csrf
+<form id="create-product-form">
     <div class="mb-3">
         <label for="name" class="form-label">Name</label>
         <input type="text" class="form-control" id="name" name="name" required>

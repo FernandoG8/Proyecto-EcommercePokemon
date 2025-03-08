@@ -1,9 +1,9 @@
 @extends('admin.layouts')
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ asset('js/admin/products/fetchProducts.js') }}"></script>
 <script src="{{ asset('js/admin/products/loadModals.js') }}"></script>
+<script src="{{ asset('js/admin/products/loadEditModal.js') }}"></script>
 @endpush
 
 @section('content')
@@ -17,6 +17,7 @@
             <th>Name</th>
             <th>Category</th>
             <th>Price</th>
+            <th>Is Active</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -24,6 +25,9 @@
         <!-- Rows will be populated by JavaScript -->
     </tbody>
 </table>
+
+<!-- Pagination -->
+<div id="pagination" class="d-flex justify-content-center mt-3"></div>
 
 <!-- Create product Modal -->
 <div class="modal fade" id="createProductModal" tabindex="-1" aria-labelledby="createProductModalLabel" aria-hidden="true">

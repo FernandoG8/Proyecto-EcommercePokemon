@@ -1,50 +1,26 @@
-function openEditModal(categoryId) {
-    axios.get(`/admin/categories/${categoryId}/edit`)
-        .then(response => {
-            document.getElementById("edit-modal-body").innerHTML = response.data;
+async function uploadSize(name, description) {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No authentication token found. Please log in.");
 
-            // Show modal after loading content
-            let editModal = new bootstrap.Modal(document.getElementById("editCategoryModal"));
-            editModal.show();
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("description", description);
 
-            // Populate product data inside the loaded form
-            loadOrderData(categoryId);
-        })
-        .catch(error => console.error("Error loading edit modal:", error));
-}
+        const response = await axios.post("/api/v1/categories", formData, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        });
 
-function loadOrderData(categoryId) {
-    axios.get(`/api/v1/categories/${categoryId}`)
-        .then(response => {
-            let category = response.data.category;
-
-            document.getElementById("name").value = category.name;
-            document.getElementById("slug").value = category.price;
-            document.getElementById("description").value = category.description;
-
-            loadSlugs(category.id);
-        })
-        .catch(error => console.error("Error loading product data:", error));
-}
-
-function loadSlugs(selectedCategoryId) {
-    axios.get('/api/v1/categories')
-        .then(response => {
-            let categories = Array.isArray(response.data) ? response.data : response.data.categories;
-            let slugSelect = document.getElementById("slug");
-            slugSelect.innerHTML = ""; // Clear options
-
-            categories.forEach(category => {
-                let option = document.createElement("option");
-                option.value = category.id;
-                option.textContent = category.slug;
-                if (category.id === selectedCategoryId) {
-                    option.selected = true;
-                }
-                slugSelect.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error loading categories:", error));
+        showAlert("Categoria creada con éxito", "success");
+        return response.data;
+    } catch (error) {
+        console.error("Error al subir producto:", error.response?.data || error.message);
+        showAlert(`Error al subir producto: ${error.response?.data?.message || error.message}`, "danger");
+        throw error;
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -59,15 +35,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Show modal after loading content
                 var createModal = new bootstrap.Modal(document.getElementById("createCategoryModal"));
                 createModal.show();
+
+                setTimeout(() => {
+                    const categoryForm = document.getElementById('create-category-form');
+                    if (categoryForm) {
+                        categoryForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+                            const name = document.getElementById('name').value;
+                            const description = document.getElementById('description').value;
+
+                            try {
+                                await uploadSize(name, description);
+                                fetchCategories();
+                            } catch (error) {
+                                console.error('Error al subir producto:', error);
+                            }
+                        });
+                    }
+                }, 100); // Pequeño retraso para asegurarse de que el DOM ha sido actualizado
             })
             .catch(error => console.error("Error loading modal content:", error));
-    });
-
-    // Edit Product Modal (Event Delegation)
-    document.addEventListener("click", function (event) {
-        if (event.target.classList.contains("edit-category-btn")) {
-            let productId = event.target.getAttribute("data-id");
-            openEditModal(productId);
-        }
     });
 });

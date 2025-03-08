@@ -16,7 +16,7 @@ function fetchPizzaSizes() {
 
                         <td>
                             <button onclick="openEditModal(${size.id})" class="btn btn-sm btn-warning">Edit</button>
-                            <button onclick="deleteCategory(${size.id})" class="btn btn-sm btn-danger">Delete</button>
+                            <button onclick="deleteSize(${size.id})" class="btn btn-sm btn-danger">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -31,8 +31,8 @@ function deleteSize(sizeId) {
     if (confirm('Are you sure you want to delete this category?')) {
         axios.delete(`/api/v1/sizes/${sizeId}`)
             .then(response => {
-                alert('Size deleted successfully!');
-                fetchCategories(); // Refresh the table
+                showAlert('Size deleted successfully!', 'success');
+                fetchPizzaSizes(); // Refresh the table
             })
             .catch(error => console.error(error));
     }

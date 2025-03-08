@@ -1,10 +1,12 @@
 <h1>Edit Order</h1>
 <form id="edit-order-form">
-    @csrf
-    @method('PUT')
+<div class="mb-3">
+        <label for="id" class="form-label">Id</label>
+        <input type="text" class="form-control" id="id" name="id" disabled>
+    </div>
     <div class="mb-3">
         <label for="order_number" class="form-label">Order number</label>
-        <input type="text" class="form-control" id="order_number" name="order_number" required>
+        <input type="text" class="form-control" id="order_number" name="order_number" disabled>
     </div>
     <div class="mb-3">
         <label for="status" class="form-label">Order status</label>
@@ -18,5 +20,5 @@
             <!-- Categories will be populated by JavaScript -->
         </select>
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" onclick="sendUpdate()" class="btn btn-primary">Save</button>
 </form>

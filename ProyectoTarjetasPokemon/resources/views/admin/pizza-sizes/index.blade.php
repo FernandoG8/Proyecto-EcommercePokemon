@@ -4,6 +4,7 @@
 @push('scripts')
 <script src="{{ asset('js/admin/pizza-size/fetchPizzaSizes.js') }}"></script>
 <script src="{{ asset('js/admin/pizza-size/loadModals.js') }}"></script>
+<script src="{{ asset('js/admin/pizza-size/loadEditModal.js') }}"></script>
 @endpush
 
 @section('content')
@@ -53,4 +54,6 @@
         </div>
     </div>
 </div>
+
+
 @endsection

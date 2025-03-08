@@ -30,7 +30,7 @@ function deleteCategory(categoryId) {
     if (confirm('Are you sure you want to delete this category?')) {
         axios.delete(`/api/v1/categories/${categoryId}`)
             .then(response => {
-                alert('Category deleted successfully!');
+                showAlert("Category deleted successfully!", "success");
                 fetchCategories(); // Refresh the table
             })
             .catch(error => console.error(error));

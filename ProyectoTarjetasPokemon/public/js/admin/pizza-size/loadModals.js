@@ -1,31 +1,29 @@
-function openEditModal(sizeId) {
-    axios.get(`/admin/sizes/${sizeId}/edit`)
-        .then(response => {
-            document.getElementById("edit-modal-body").innerHTML = response.data;
+async function uploadSize(name, price_multiplier, is_active) {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No authentication token found. Please log in.");
 
-            // Show modal after loading content
-            let editModal = new bootstrap.Modal(document.getElementById("editSizeModal"));
-            editModal.show();
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("price_multiplier", price_multiplier);
+        formData.append("is_active", is_active ? 1 : 0);
 
-            // Populate product data inside the loaded form
-            loadOrderData(sizeId);
-        })
-        .catch(error => console.error("Error loading edit modal:", error));
+        const response = await axios.post("/api/v1/sizes", formData, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        showAlert("Tamaño creada con éxito", "success");
+        return response.data;
+    } catch (error) {
+        console.error("Error al subir producto:", error.response?.data || error.message);
+        showAlert(`Error al subir producto: ${error.response?.data?.message || error.message}`, "danger");
+        throw error;
+    }
 }
 
-function loadOrderData(sizeId) {
-    axios.get(`/api/v1/sizes/${sizeId}`)
-        .then(response => {
-            let size = response.data.size;
-
-            document.getElementById("name").value = size.name;
-            document.getElementById("price_multiplier").value = size.price_multiplier;
-
-            // Set checkbox checked/unchecked based on is_active
-            document.getElementById("is_active").checked = size.is_active === 1 || size.is_active === true;
-        })
-        .catch(error => console.error("Error loading size data:", error));
-}
 
 document.addEventListener("DOMContentLoaded", function () {
     // Add Product Modal
@@ -39,15 +37,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Show modal after loading content
                 var createModal = new bootstrap.Modal(document.getElementById("createSizeModal"));
                 createModal.show();
+
+                setTimeout(() => {
+                    const productForm = document.getElementById('create-product-form');
+                    if (productForm) {
+                        productForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+
+                            const name = document.getElementById('name').value;
+                            const price_multiplier = document.getElementById('price_multiplier').value;
+                            const is_active = document.getElementById('is_active').checked ? 1 : 0;
+
+                            try {
+                                await uploadSize(name, price_multiplier, is_active);
+                                fetchPizzaSizes();
+                            } catch (error) {
+                                console.error('Error al subir producto:', error);
+                            }
+                        });
+                    }
+                }, 100); // Pequeño retraso para asegurarse de que el DOM ha sido actualizado
             })
             .catch(error => console.error("Error loading modal content:", error));
-    });
-
-    // Edit Product Modal (Event Delegation)
-    document.addEventListener("click", function (event) {
-        if (event.target.classList.contains("edit-size-btn")) {
-            let productId = event.target.getAttribute("data-id");
-            openEditModal(productId);
-        }
     });
 });

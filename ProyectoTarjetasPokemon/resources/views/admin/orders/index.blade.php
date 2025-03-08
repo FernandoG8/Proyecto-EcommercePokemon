@@ -4,6 +4,7 @@
 <!-- Scripts -->
 <script src="{{ asset('js/admin/orders/fetchOrders.js')}}"></script>
 <script src="{{ asset('js/admin/orders/loadModals.js')}}"></script>
+<script src="{{ asset('js/admin/orders/loadEditModal.js')}}"></script>
 @endpush
 
 @section('content')
@@ -43,4 +44,5 @@
         </div>
     </div>
 </div>
+
 @endsection

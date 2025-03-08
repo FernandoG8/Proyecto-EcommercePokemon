@@ -4,6 +4,7 @@
 <!-- Scripts -->
 <script src="{{ asset('js/admin/categories/fetchCategories.js') }}"></script>
 <script src="{{ asset('js/admin/categories/loadModals.js') }}"></script>
+<script src="{{ asset('js/admin/categories/loadEditModal.js') }}"></script>
 @endpush
 
 @section('content')
@@ -53,4 +54,5 @@
         </div>
     </div>
 </div>
+
 @endsection

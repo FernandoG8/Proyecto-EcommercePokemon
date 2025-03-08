@@ -1,12 +1,7 @@
-<form id="create-product-form" action="{{ url('/admin/products') }}" method="POST" enctype="multipart/form-data">
-    @csrf
+<form id="create-product-form">
     <div class="mb-3">
         <label for="name" class="form-label">Name</label>
         <input type="text" class="form-control" id="name" name="name" required>
-    </div>
-    <div class="mb-3">
-        <label for="slug" class="form-label">Slug</label>
-        <input type="text" class="form-control" id="slug" name="slug" required>
     </div>
     <div class="mb-3">
         <label for="description" class="form-label">Description</label>
@@ -26,7 +21,7 @@
     </div>
     <div class="mb-3">
         <label for="is_active" class="form-label">Is active</label>
-        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="true" checked>
+        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" checked>
     </div>
     <div class="mb-3">
         <label for="category_id" class="form-label">Category</label>

@@ -24,6 +24,11 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         return view('admin.products.index');
     });
 
+    Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
+
+    Route::put('/products/{productId}', [ProductController::class, 'store'])->name('admin.products.update');
+
+
     Route::get('/products/create', function () {
         return view('admin.products.create');
     });
