@@ -81,7 +81,7 @@ function fetchProducts() {
                         <td>${product.category.name}</td>
                         <td>$${product.price}</td>
                         <td>
-                            <a href="/admin/products/${product.id}/edit" class="btn btn-sm btn-warning">Edit</a>
+                            <button onclick="openEditModal(${product.id})" class="btn btn-sm btn-warning">Edit</button>
                             <button onclick="deleteProduct(${product.id})" class="btn btn-sm btn-danger">Delete</button>
                         </td>
                     </tr>
@@ -164,6 +164,8 @@ function fetchCategories() {
         })
         .catch(error => console.error(error));
 }
+
+
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function () {

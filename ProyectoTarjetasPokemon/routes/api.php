@@ -29,6 +29,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
     Route::get('/sizes', [PizzaSizeController::class, 'index']);
+    Route::get('/sizes/{pizzaSize}', [PizzaSizeController::class, 'show']);
 });
 
 // Rutas protegidas (requieren autenticación)
