@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -54,7 +55,7 @@ class CartController extends Controller
         ]);
 
     } catch (\Exception $e) {
-        \Log::error('Error loading cart: ' . $e->getMessage());
+        Log::error('Error loading cart: ' . $e->getMessage());
         return response()->json(['error' => 'Error al cargar el carrito'], 500);
     }
 }
@@ -93,7 +94,7 @@ class CartController extends Controller
             ], 201);
     
         } catch (\Exception $e) {
-            \Log::error('Error adding item to cart: ' . $e->getMessage());
+            Log::error('Error adding item to cart: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Error al agregar el producto al carrito'
             ], 500);

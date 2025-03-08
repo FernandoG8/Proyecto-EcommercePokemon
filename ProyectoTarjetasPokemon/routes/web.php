@@ -4,21 +4,22 @@ use App\Http\Controllers\PokemonController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 
-// Ruta principal
+// Rutas públicas (sin autenticación requerida)
 Route::get('/Inicio', function () {
     return view('index');
 });
+
 Route::get('/Menu', function () {
     return view('menu');
 });
+
 Route::get('/Registro', function () {
     return view('registro');
 });
-Route::get('/subirImagenes' ,function(){
-    return view('subirImagenes');
-});
 
-Route::prefix('admin')->group(function () {
+// Rutas protegidas (requieren autenticación)
+Route::middleware('auth')->prefix('admin')->group(function () {
+    
     Route::get('/products', function () {
         return view('admin.products.index');
     });
@@ -50,7 +51,6 @@ Route::prefix('admin')->group(function () {
     Route::get('/sizes', function () {
         return view('admin.pizza-sizes.index');
     });
-
     Route::get('/sizes/create', function () {
         return view('admin.pizza-sizes.create');
     });
