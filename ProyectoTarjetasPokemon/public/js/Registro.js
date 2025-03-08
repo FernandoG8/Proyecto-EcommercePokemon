@@ -160,10 +160,14 @@ async function loginUser(email, password) {
             password
         });
         
-        // Guardar el token en localStorage'
+        // Guardar el token en localStorage
         console.log(data.token);
+        console.log(data.redirect);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
         
         showAlert('Inicio de sesión exitoso', 'success');
         updateUserInterface();

@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -25,7 +27,7 @@ class AuthController extends Controller
      public function register(Request $request)
      {
          try {
-             \Log::info('Datos recibidos:', $request->all()); // Para debug
+             Log::info('Datos recibidos:', $request->all()); // Para debug
      
              $validated = $request->validate([
                  'name' => 'required|string|max:255',
@@ -61,14 +63,14 @@ class AuthController extends Controller
      
          } catch (ValidationException $e) {
              DB::rollBack();
-             \Log::error('Error de validación:', $e->errors());
+             Log::error('Error de validación:', $e->errors());
              return response()->json([
                  'message' => 'Error de validación',
                  'errors' => $e->errors()
              ], 422);
          } catch (\Exception $e) {
              DB::rollBack();
-             \Log::error('Error en registro:', ['error' => $e->getMessage()]);
+             Log::error('Error en registro:', ['error' => $e->getMessage()]);
              return response()->json([
                  'message' => 'Error al registrar usuario',
                  'error' => $e->getMessage()
@@ -88,26 +90,33 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
+    
         $user = User::where('email', $request->email)->first();
-
+    
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'error' => ['Credenciales inválidas.']
             ]);
         }
-
+    
         try {
             // Verificar si el usuario tiene un carrito, si no, crearlo
             if (!$user->cart) {
                 Cart::create(['user_id' => $user->id]);
             }
-
+    
+            Auth::login($user);
+            
+            $request->session()->regenerate();
+            
             $token = $user->createToken('auth_token')->plainTextToken;
-
+            
+            $redirectUrl = $user->isAdmin() ? '/admin/products' : '/Inicio';
+            
             return response()->json([
                 'user' => $user,
-                'token' => $token
+                'token' => $token,
+                'redirect' => $redirectUrl
             ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Ocurrió un error en el inicio de sesión.'], 500);
@@ -130,7 +139,7 @@ class AuthController extends Controller
                 'message' => 'Sesión cerrada correctamente'
             ], 200);
         } catch (Exception $e) {
-            \Log::error('Error en logout:', ['error' => $e->getMessage()]);
+            Log::error('Error en logout:', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Error al cerrar sesión',
                 'error' => $e->getMessage()
