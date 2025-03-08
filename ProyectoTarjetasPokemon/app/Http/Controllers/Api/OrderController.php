@@ -21,22 +21,68 @@ class OrderController extends Controller
         try {
             $user = $request->user();
             
-            if ($user->isAdmin()) {
-                $query = Order::with('user', 'items');
-                if ($request->has('status')) {
-                    $query->where('status', $request->status);
-                }
-                $orders = $query->latest()->paginate(10);
-            } else {
-                $orders = $user->orders()->with('items')->latest()->paginate(10);
+            // Consulta base
+            $query = Order::with(['items' => function($q) {
+                $q->select(
+                    'id',
+                    'order_id',
+                    'product_name',
+                    'quantity',
+                    'unit_price',
+                    'size_name'
+                );
+            }]);
+            
+            // Filtrar por usuario actual (no admin)
+            $query->where('user_id', $user->id);
+            
+            // Aplicar filtros si existen
+            if ($request->has('status') && $request->status !== 'all') {
+                $query->where('status', $request->status);
             }
             
-            return response()->json($orders);
+            if ($request->has('date')) {
+                $query->whereDate('created_at', $request->date);
+            }
+            
+            // Obtener pedidos ordenados por fecha más reciente
+            $orders = $query->orderBy('created_at', 'desc')->get();
+            
+            // Transformar los datos para la respuesta
+            $formattedOrders = $orders->map(function($order) {
+                return [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'total_amount' => $order->total_amount,
+                    'status' => $order->status,
+                    'created_at' => $order->created_at,
+                    'items' => $order->items->map(function($item) {
+                        return [
+                            'product_name' => $item->product_name,
+                            'quantity' => $item->quantity,
+                            'unit_price' => $item->unit_price,
+                            'size_name' => $item->size_name,
+                            'subtotal' => $item->quantity * $item->unit_price
+                        ];
+                    })
+                ];
+            });
+    
+            return response()->json([
+                'data' => $formattedOrders
+            ]);
+    
         } catch (Exception $e) {
-            Log::error('Error en index de ordenes: ' . $e->getMessage());
-            return response()->json(['error' => 'Error al obtener los pedidos.'], 500);
+            \Log::error('Error en index de ordenes: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error al obtener los pedidos',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
+
+
+
 
     /**
      * Crea un nuevo pedido a partir del carrito del usuario.

@@ -26,6 +26,11 @@ Route::get('/checkout' ,function(){
     return view('checkout');
 });
 
+Route::get('/pedidos' ,function(){
+    return view('pedidos');
+});
+
+
 
 Route::prefix('admin')->group(function () {
     Route::get('/products', function () {

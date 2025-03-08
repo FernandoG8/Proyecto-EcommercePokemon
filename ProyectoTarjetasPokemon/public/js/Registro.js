@@ -168,13 +168,21 @@ async function registerUserAdmin(name, email, password, password_confirmation) {
 // Función para iniciar sesión
 async function loginUser(email, password) {
     try {
-        const data = await apiRequest('/login', 'POST', {
-            email,
-            password
+        const response = await fetch(`${API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
         });
-        
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+
+        if (!response.ok) {
+            throw new Error('Error en la autenticación');
+        }
+
+        // Usar la nueva función handleLogin
+        await handleLogin(response);
         
         showAlert('Inicio de sesión exitoso', 'success');
         
@@ -184,15 +192,25 @@ async function loginUser(email, password) {
             authModal.hide();
         }
         
-        // Pequeño delay para que se vea el mensaje de éxito
         setTimeout(() => {
             window.location.reload();
         }, 1000);
-        
-        return data;
+
     } catch (error) {
         showAlert(`Error al iniciar sesión: ${error.message}`);
         throw error;
+    }
+}
+
+
+async function handleLogin(response) {
+    const data = await response.json();
+    if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        updateUserInterface(); // Actualizar la UI después de guardar el token
+    } else {
+        throw new Error('No se recibió token de autenticación');
     }
 }
 

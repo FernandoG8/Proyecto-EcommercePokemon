@@ -56,7 +56,7 @@
                         <a class="nav-link" href="/Menu">Menú</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Pedidos</a>
+                        <a class="nav-link" href="/pedidos">Pedidos</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Contacto</a>
