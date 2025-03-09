@@ -43,9 +43,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-
+    /**
+     * Retorna el rol de la clase.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
     public function cart()
 {
     return $this->hasOne(Cart::class);
 }
+
 }

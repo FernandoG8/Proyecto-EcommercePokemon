@@ -180,10 +180,8 @@ async function loginUser(email, password) {
         if (!response.ok) {
             throw new Error('Error en la autenticación');
         }
-
         // Usar la nueva función handleLogin
         await handleLogin(response);
-        
         showAlert('Inicio de sesión exitoso', 'success');
         
         // Cerrar el modal y recargar la página
@@ -208,6 +206,9 @@ async function handleLogin(response) {
     if (data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
         updateUserInterface(); // Actualizar la UI después de guardar el token
     } else {
         throw new Error('No se recibió token de autenticación');

@@ -32,19 +32,19 @@ class ProductController extends Controller
                 'active' => 'sometimes|boolean',
                 'per_page' => 'sometimes|integer|min:1|max:100'
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json([
                     'message' => 'Validation error',
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             $validated = $validator->validated();
-    
+
             // 2. Construcción de query
             $query = Product::with('category')
-            //validated confirma qu sea category_slug
+                //validated confirma qu sea category_slug
                 ->when(isset($validated['category_slug']), function ($q) use ($validated) {
                     // Esto funciona con ?category_slug="nombredelSlug"
                     $q->whereHas('category', function ($subQuery) use ($validated) {
@@ -53,43 +53,42 @@ class ProductController extends Controller
                 })
 
                 ->when(isset($validated['search']), function ($q) use ($validated) {
-                  //funciona pasando   ?search= "coincidencia"
+                    //funciona pasando   ?search= "coincidencia"
                     $q->where(function ($subQuery) use ($validated) {
                         $subQuery->where('name', 'like', "%{$validated['search']}%")
-                                ->orWhere('description', 'like', "%{$validated['search']}%");
+                            ->orWhere('description', 'like', "%{$validated['search']}%");
                     });
                 })
                 ->when(isset($validated['active']), function ($q) use ($validated) {
                     // filtra los prodcutos activos con ?active=true
                     $q->where('is_active', $validated['active']);
                 });
-    
+
             // 3. Paginación configurable
             //validamos con ?per_page="cantidad de productos traidos"
             $perPage = $validated['per_page'] ?? 15;
             $products = $query->paginate($perPage);
-    
-             // 4. Transformación usando API Resources
-        return response()->json([
-            'data' => ProductResource::collection($products),
-            'message' => 'Products retrieved successfully',
-            'meta' => [
-                'filters' => $validated,
-                'pagination' => [
-                    'current_page' => $products->currentPage(),
-                    'per_page' => $products->perPage(),
-                    'total' => $products->total(),
-                    'last_page' => $products->lastPage()
-                ]
-            ]
-        ],200, [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-    } catch (\Exception $e) {
-        Log::error('Product fetch error', ['exception' => $e]);
-        return response()->json([
-            'message' => 'Error retrieving products'
-        ], 500);
-    }
+            // 4. Transformación usando API Resources
+            return response()->json([
+                'data' => ProductResource::collection($products),
+                'message' => 'Products retrieved successfully',
+                'meta' => [
+                    'filters' => $validated,
+                    'pagination' => [
+                        'current_page' => $products->currentPage(),
+                        'per_page' => $products->perPage(),
+                        'total' => $products->total(),
+                        'last_page' => $products->lastPage()
+                    ]
+                ]
+            ], 200, [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        } catch (\Exception $e) {
+            Log::error('Product fetch error', ['exception' => $e]);
+            return response()->json([
+                'message' => 'Error retrieving products'
+            ], 500);
+        }
     }
 
     /**
@@ -109,26 +108,30 @@ class ProductController extends Controller
                 'stock' => 'required|integer|min:0',
                 'category_id' => 'required|exists:categories,id',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'is_active' => 'boolean',
+                'is_active' => 'nullable|boolean', // Allow null, but ensure boolean
             ]);
 
-            $validatedData['slug'] = Str::slug($validatedData['name']);
-            $validatedData['is_active'] = $request->has('is_active') ? $request->boolean('is_active') : true;
+            // Convert is_active manually to a boolean
+            $validatedData['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
 
             if ($request->hasFile('image')) {
                 $validatedData['image'] = $request->file('image')->store('products/images', 'public');
             }
 
             $product = Product::create($validatedData);
-            $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
 
-            return response()->json(['product' => $product, 'message' => 'Product created successfully'], 201);
+            return response()->json([
+                'product' => $product,
+                'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+                'message' => 'Product created successfully'
+            ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error creating product', 'error' => $e->getMessage()], 500);
         }
     }
+
 
     /**
      * Muestra un producto específico.
@@ -151,6 +154,7 @@ class ProductController extends Controller
      * @param Product $product
      * @return JsonResponse
      */
+
     public function update(Request $request, Product $product): JsonResponse
     {
         try {
@@ -164,7 +168,10 @@ class ProductController extends Controller
                 'is_active' => 'boolean',
             ]);
 
-            if ($request->has('name')) {
+            // Guarda los datos originales para compararlos
+            $originalData = $product->toArray();
+
+            if ($request->has('name') && $request->name !== $product->name) {
                 $validatedData['slug'] = Str::slug($request->name);
             }
 
@@ -175,10 +182,31 @@ class ProductController extends Controller
                 $validatedData['image'] = $request->file('image')->store('products/images', 'public');
             }
 
-            $product->update($validatedData);
+            //verifica si algo cambió
+            $product->fill($validatedData);
+            $updated = $product->save();
+
+            // Recarga el modelo desde la base de datos
+            $product->refresh();
+
+            // Compara los datos para ver si algo cambió
+            $newData = $product->toArray();
+            $changesDetected = $originalData != $newData;
+
+            // Agrega la URL de la imagen
             $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
 
-            return response()->json(['product' => $product, 'message' => 'Product updated successfully']);
+            if ($updated && $changesDetected) {
+                return response()->json([
+                    'product' => $product,
+                    'message' => 'Product updated successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'product' => $product,
+                    'message' => 'No changes were detected or update failed'
+                ]);
+            }
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {

@@ -12,10 +12,11 @@ function fetchPizzaSizes() {
                         <td>${size.id}</td>
                         <td>${size.name}</td>
                         <td>${size.price_multiplier}</td>
-                        <td>${size.is_active ? 'Yes' : 'No'}</td>
+                        <td>${size.is_active ? 'Si' : 'No'}</td>
+
                         <td>
-                            <a href="/admin/categories/${size.id}/edit" class="btn btn-sm btn-warning">Edit</a>
-                            <button onclick="deleteCategory(${size.id})" class="btn btn-sm btn-danger">Delete</button>
+                            <button onclick="openEditModal(${size.id})" class="btn btn-sm btn-warning">Edit</button>
+                            <button onclick="deleteSize(${size.id})" class="btn btn-sm btn-danger">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -30,8 +31,8 @@ function deleteSize(sizeId) {
     if (confirm('Are you sure you want to delete this category?')) {
         axios.delete(`/api/v1/sizes/${sizeId}`)
             .then(response => {
-                alert('Size deleted successfully!');
-                fetchCategories(); // Refresh the table
+                showAlert('Size deleted successfully!', 'success');
+                fetchPizzaSizes(); // Refresh the table
             })
             .catch(error => console.error(error));
     }

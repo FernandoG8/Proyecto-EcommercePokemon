@@ -1,4 +1,3 @@
-console.log('fetchCategories.js loaded!');
 function fetchCategories() {
     axios.get('/api/v1/categories')
         .then(response => {
@@ -15,7 +14,7 @@ function fetchCategories() {
                         <td>${category.slug}</td>
                         <td>${category.description}</td>
                         <td>
-                            <a href="/admin/categories/${category.id}/edit" class="btn btn-sm btn-warning">Edit</a>
+                             <button onclick="openEditModal(${category.id})" class="btn btn-sm btn-warning">Edit</button>
                             <button onclick="deleteCategory(${category.id})" class="btn btn-sm btn-danger">Delete</button>
                         </td>
                     </tr>
@@ -31,7 +30,7 @@ function deleteCategory(categoryId) {
     if (confirm('Are you sure you want to delete this category?')) {
         axios.delete(`/api/v1/categories/${categoryId}`)
             .then(response => {
-                alert('Category deleted successfully!');
+                showAlert("Category deleted successfully!", "success");
                 fetchCategories(); // Refresh the table
             })
             .catch(error => console.error(error));
