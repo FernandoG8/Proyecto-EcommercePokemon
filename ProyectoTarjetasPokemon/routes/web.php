@@ -32,7 +32,7 @@ Route::middleware('auth')->group(function () {
         return view('pedidos');
     });
 
-    Route::middleware('admin')->group(function () {
+    Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('/products', function () {
             return view('admin.products.index');
         });

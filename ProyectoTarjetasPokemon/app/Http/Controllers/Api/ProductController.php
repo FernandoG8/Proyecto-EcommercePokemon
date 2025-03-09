@@ -66,7 +66,7 @@ class ProductController extends Controller
 
             // 3. Paginación configurable
             //validamos con ?per_page="cantidad de productos traidos"
-            $perPage = $validated['per_page'] ?? 10;
+            $perPage = $validated['per_page'] ?? 40;
             $products = $query->paginate($perPage);
 
             // 4. Transformación usando API Resources
