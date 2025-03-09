@@ -22,7 +22,7 @@ Route::get('/Registro', function () {
 
 
 // Rutas protegidas (requieren autenticación)
-Route::middleware('auth')->prefix('admin')->group(function () {
+Route::middleware('auth')->group(function () {
 
     Route::get('/checkout', function () {
         return view('checkout');
