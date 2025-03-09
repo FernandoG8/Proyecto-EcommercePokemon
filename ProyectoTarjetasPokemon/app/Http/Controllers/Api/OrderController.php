@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -19,33 +20,37 @@ class OrderController extends Controller
     {
         try {
             $user = $request->user();
+
             if ($user->isAdmin()) {
-                $query = Order::with('user', 'items');
-                if ($request->has('status')) {
+                $query = Order::with(['user', 'items']);
+
+                if ($request->has('status') && $request->status !== 'all') {
                     $query->where('status', $request->status);
                 }
-                $orders = $query->latest()->paginate(10);
             } else {
-                $query = $user->orders()->with('items');
-                
-                // Permitir filtrado por estado también para usuarios normales
-                if ($request->has('status')) {
+                $query = Order::where('user_id', $user->id)
+                    ->with(['items' => function ($q) {
+                        $q->select(
+                            'id',
+                            'order_id',
+                            'product_name',
+                            'quantity',
+                            'unit_price',
+                            'size_name'
+                        );
+                    }]);
+
+                if ($request->has('status') && $request->status !== 'all') {
                     $query->where('status', $request->status);
                 }
-                
-                // Permitir ordenar por diferentes campos
-                if ($request->has('sort_by') && $request->has('sort_order')) {
-                    $query->orderBy($request->sort_by, $request->sort_order);
-                } else {
-                    $query->latest(); // ordenar por fecha más reciente
-                }
-                
-                $orders = $query->paginate(10);
             }
-    
+
+            $orders = $query->orderBy('created_at', 'desc')->paginate(10);
+
             return response()->json($orders);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Error al obtener los pedidos: ' . $e->getMessage()], 500);
+            Log::error('Error en index de órdenes: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al obtener los pedidos'], 500);
         }
     }
 
@@ -54,25 +59,32 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'payment_method' => 'required|string|in:cash,card',
-            'delivery_address' => 'required|string',
-            'contact_phone' => 'required|string',
-            'notes' => 'nullable|string',
-        ]);
+        Log::info('Datos recibidos en store:', $request->all());
 
         try {
+            $request->validate([
+                'payment_method' => 'required|string|in:efectivo,tarjeta',
+                'delivery_address' => 'required|string',
+                'contact_phone' => 'required|string',
+                'notes' => 'nullable|string',
+            ]);
+
             $user = $request->user();
+            Log::info('Usuario:', ['id' => $user->id]);
+
             $cart = $user->cart;
 
             if (!$cart || $cart->items->isEmpty()) {
                 return response()->json(['message' => 'El carrito está vacío.'], 422);
             }
 
+            $total = $cart->getTotal();
+            Log::info('Total del carrito:', ['total' => $total]);
+
             $order = Order::create([
                 'user_id' => $user->id,
                 'order_number' => 'ORD-' . strtoupper(Str::random(10)),
-                'total_amount' => $cart->getTotal(),
+                'total_amount' => $total,
                 'status' => 'pending',
                 'payment_method' => $request->payment_method,
                 'payment_status' => 'pending',
@@ -88,20 +100,27 @@ class OrderController extends Controller
                     'product_name' => $cartItem->product->name,
                     'quantity' => $cartItem->quantity,
                     'unit_price' => $cartItem->unit_price,
-                    'special_instructions' => $cartItem->special_instructions,
-                    'pizza_size_id' => $cartItem->pizza_size_id,
+                    'special_instructions' => $cartItem->special_instructions ?? null,
+                    'pizza_size_id' => $cartItem->pizza_size_id ?? null,
                     'size_name' => $cartItem->size ? $cartItem->size->name : null,
                 ]);
             }
 
             $cart->items()->delete();
+            Log::info('Carrito limpiado');
+
+            $order->load('items');
 
             return response()->json([
                 'message' => 'Pedido realizado exitosamente.',
-                'order' => $order->load('items')
+                'order' => $order
             ], 201);
         } catch (QueryException $e) {
-            return response()->json(['error' => 'Error al procesar el pedido.'], 500);
+            Log::error('Error en store de órdenes (QueryException): ' . $e->getMessage());
+            return response()->json(['error' => 'Error al procesar el pedido'], 500);
+        } catch (Exception $e) {
+            Log::error('Error general en store de órdenes: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al procesar el pedido'], 500);
         }
     }
 
@@ -114,8 +133,9 @@ class OrderController extends Controller
             $user = $request->user();
 
             if (!$user->isAdmin() && $order->user_id !== $user->id) {
-                 return response()->json(['message' => 'No autorizado.'], 403);
-             }
+                return response()->json(['message' => 'No autorizado.'], 403);
+            }
+
             $order->load('items', 'user');
             return response()->json(['order' => $order]);
         } catch (Exception $e) {

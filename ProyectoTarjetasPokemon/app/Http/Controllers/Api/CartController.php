@@ -21,12 +21,10 @@ class CartController extends Controller
     public function index(Request $request)
 {
     try {
-        // Obtener el carrito del usuario o crear uno nuevo
         $cart = Cart::firstOrCreate([
             'user_id' => $request->user()->id
         ]);
 
-        // Cargar los items con sus relaciones
         $items = $cart->items()
             ->with(['product', 'size'])
             ->get()
@@ -37,7 +35,8 @@ class CartController extends Controller
                     'unit_price' => (float)$item->unit_price,
                     'product' => [
                         'id' => $item->product->id,
-                        'name' => $item->product->name
+                        'name' => $item->product->name,
+                        'price' => (float)$item->unit_price // Add this line
                     ],
                     'size' => $item->size ? [
                         'id' => $item->size->id,

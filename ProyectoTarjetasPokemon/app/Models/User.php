@@ -43,7 +43,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-
     /**
      * Retorna el rol de la clase.
      */
@@ -55,4 +54,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+    public function cart()
+{
+    return $this->hasOne(Cart::class);
+}
+
 }

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -15,10 +14,25 @@
         rel="stylesheet">
         <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
         <head>
-    
 </head>
-</head>
-
+<div class="container my-4 position-sticky" style="top: 0; z-index: 1000;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center justify-content-center">
+                <label for="categoryFilter" class="me-3 fw-bold" style="font-family: 'Fredoka One', cursive;">Filtrar por categoría:</label>
+                <select id="categoryFilter" class="form-select form-select-lg w-50">
+                    <option value="all">Todos los productos</option>
+                    <option value="pizza">Pizzas</option>
+                    <option value="hotdog">Hot Dogs</option>
+                    <option value="hamburguesa">Hamburguesas</option>
+                    <option value="papas">Papas</option>
+                    <option value="bebidas">Bebidas</option>
+                    <option value="tacos">Tacos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
 <body>
        <!-- Navbar -->
        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
@@ -42,7 +56,7 @@
                         <a class="nav-link" href="/Menu">Menú</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Pedidos</a>
+                        <a class="nav-link" href="/pedidos">Pedidos</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Contacto</a>
@@ -145,12 +159,15 @@
         <h3 class="text-center">Tu Carrito</h3>
         <button type="button" class="btn-close" aria-label="Close" id="closeCart"></button>
     </div>
-    <div id="cartItems" class="cart-items">
+    <div class="cart-items" id="cartItems">
         <!-- Los productos del carrito se generarán dinámicamente con JS -->
     </div>
-    <div class="text-center">
-        <h4>Total: <span id="cartTotal">$0.00</span></h4>
-        <button id="clearCartButton" class="btn btn-danger">Vaciar Carrito</button>
+    <div class="cart-footer">
+        <h4 class="text-center mb-3">Total: <span id="cartTotal">$0.00</span></h4>
+        <div class="d-grid gap-2">
+<button id="checkoutButton" class="btn btn-success mb-2">Realizar Pedido</button>
+            <button id="clearCartButton" class="btn btn-danger">Vaciar Carrito</button>
+        </div>
     </div>
 </div>
 
@@ -205,6 +222,7 @@
             <!-- Las pizzas se generarán dinámicamente con JS -->
         </div>
     </section>
+    
 
     <!-- Menú de Hotdogs -->
     <section class="container my-5">
