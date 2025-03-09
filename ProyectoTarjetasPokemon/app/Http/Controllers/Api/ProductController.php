@@ -66,7 +66,7 @@ class ProductController extends Controller
 
             // 3. Paginación configurable
             //validamos con ?per_page="cantidad de productos traidos"
-            $perPage = $validated['per_page'] ?? 15;
+            $perPage = $validated['per_page'] ?? 10;
             $products = $query->paginate($perPage);
 
             // 4. Transformación usando API Resources
@@ -110,7 +110,7 @@ class ProductController extends Controller
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'is_active' => 'nullable|boolean', // Allow null, but ensure boolean
             ]);
-
+            $validatedData['slug'] = Str::slug($validatedData['name']);
             // Convert is_active manually to a boolean
             $validatedData['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
 
