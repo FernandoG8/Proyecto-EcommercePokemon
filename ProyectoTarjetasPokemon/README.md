@@ -99,7 +99,7 @@ php artisan serve
 
 
 La aplicación estará disponible en: http://localhost:8000/
-
+El panel de administrado se encuentra en http://localhost:8000/admin/products, debe ser logeado como Administrador para poder acceder a ella
 Pero es necesario navega a http://localhost:8000/Inicio para acceder a la página principal
 
 ## Estructura del Proyecto
@@ -112,7 +112,7 @@ Pero es necesario navega a http://localhost:8000/Inicio para acceder a la págin
 - tests/ - Tests automatizados
 
 ## Enlaces de Interés
-
+- [Documemtación del Proyecto](https://docs.google.com/document/d/1qkylvoLV21Ce2uiN5mUZWdKNzYqT-1JyDQxAue80ECY/edit?usp=sharing))
 - [Documentación de Laravel](https://laravel.com/docs)
 - [Laracasts](https://laracasts.com)
 - [Laravel News](https://laravel-news.com)
